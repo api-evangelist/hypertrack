@@ -1,0 +1,234 @@
+generated: '2026-08-22'
+method: derived
+source: >-
+  openapi/hypertrack-openapi.yaml (395 component schemas; id/handle reference fields walked across
+  every schema), enriched from https://github.com/hypertrack/hypertrack-skills
+  (skills/hypertrack-integration/SKILL.md data model table)
+core_statement: >-
+  HyperTrack tracks WORKERS performing ORDERS at PLACES. Orders are the primary tracking mechanism:
+  creating an order starts tracking the assigned worker's device, and completing or cancelling it
+  stops tracking.
+identifier_scheme:
+  caller_supplied:
+  - field: order_handle
+    entity: Order
+    meaning: your shift or job ID
+  - field: worker_handle
+    entity: Worker
+    meaning: your internal user ID
+  - field: place_handle
+    entity: Place
+    meaning: your location ID
+  - field: ops_group_handle
+    entity: OpsGroup
+    meaning: your division or region ID
+  - field: route_handle
+    entity: Route
+    meaning: your route ID
+  server_generated:
+  - visit_id
+  - geotag_id
+  - task_id
+  - task_definition_id
+  - plan_id
+  - job_id
+  - estimated_route_id
+  - geofence_id
+  - place_id
+  - device_id
+  - tracking_id
+  - approver_id
+  - audit_id
+  - marker_id
+  - event_id
+  legacy_alias:
+    field: driver_handle
+    superseded_by: worker_handle
+    note: >-
+      Both fields appear side by side on the same response schemas (Order, RouteDetail, Visit,
+      Geotag and every order webhook event). `driver_handle` is the pre-rename name for the same
+      value and is still emitted; the contract does not mark it deprecated. An integrator reading
+      the spec cold cannot tell which one is authoritative. Same pattern on /nearby/v3 (drivers)
+      versus /nearby/v4 (workers).
+entities:
+- name: Order
+  key: order_handle
+  schema: Order
+  description: A unit of tracked work — a shift, delivery, visit or job.
+  states: [started, assigned, arrived, exited, completed, cancelled, disabled, enabled, delayed]
+- name: Worker
+  key: worker_handle
+  schema: Worker
+  description: The person doing the work; your app user (driver, courier, technician, rep).
+- name: Place
+  key: place_handle
+  schema: PlaceResponse
+  description: A recurring destination — facility, store, site — with a learned or declared geofence.
+- name: Route
+  key: route_handle
+  schema: RouteDetail
+  description: An ordered sequence of orders assigned to one worker.
+- name: Plan
+  key: plan_id
+  schema: PlanResponse
+  description: A planning run that produces routes from a set of orders.
+- name: Visit
+  key: visit_id
+  schema: Visit
+  description: A geofence entry/exit event pair at a place.
+- name: Geotag
+  key: geotag_id
+  schema: Geotag
+  description: A proof-of-work marker an app user creates in the field, with metadata and route_to distance.
+- name: OpsGroup
+  key: ops_group_handle
+  schema: OpsGroup
+  description: A business division or region; an optional grouping over workers, orders and task definitions.
+- name: OrderTask
+  key: task_id
+  schema: OrderTask
+  description: A checklist item on an order, instantiated from a TaskDefinition.
+- name: TaskDefinition
+  key: task_definition_id
+  schema: TasksDefinitionResponse
+  description: A reusable task template scoped to an ops group.
+- name: WorkerApprover
+  key: approver_id
+  schema: WorkerApproverResponse
+  description: A worker or dashboard user authorised to approve another worker's shift.
+- name: Device
+  key: device_id
+  schema: DriverDevice1
+  description: >-
+    The phone running the SDK. Not a first-class REST resource — there is no /devices path — but it
+    is a first-class node in the graph, referenced from Order, Worker, Visit, Geotag, Route and
+    every webhook event, and it IS a first-class resource in the MCP server (list_devices,
+    get_device, get_device_history).
+- name: Geofence
+  key: geofence_id
+  description: >-
+    The boundary a visit is detected against. Like Device, referenced everywhere but with no REST
+    resource of its own; created implicitly by a Place or by an order destination.
+- name: EstimatedRoute
+  key: estimated_route_id
+  schema: GetEstimatedRouteResponse
+  description: A generated route estimate carrying the GeoJSON LineString polyline, distance and duration.
+- name: ExportJob
+  key: job_id
+  schema: OrderExportStatusResponse
+  description: An async export job for orders or workers.
+relationships:
+- from: Order
+  to: Worker
+  type: belongs_to
+  via: worker_handle
+  also_via: driver_handle
+- from: Order
+  to: Route
+  type: belongs_to
+  via: route_handle
+- from: Order
+  to: Place
+  type: belongs_to
+  via: place_handle
+  note: Only when the destination is expressed as a place; destinations may also be a raw geometry or a geofence_id.
+- from: Order
+  to: OpsGroup
+  type: belongs_to
+  via: ops_group_handle
+- from: Order
+  to: Plan
+  type: belongs_to
+  via: plan_id
+- from: Order
+  to: Device
+  type: belongs_to
+  via: device_id
+- from: Order
+  to: OrderTask
+  type: has_many
+  via: order_handle
+- from: Order
+  to: EstimatedRoute
+  type: has_one
+  via: estimated_route_id
+  note: Carried on the ETA webhook events (first_eta, eta_change, n_minutes_away).
+- from: Route
+  to: Order
+  type: has_many
+  via: route_handle
+- from: Route
+  to: Worker
+  type: belongs_to
+  via: worker_handle
+- from: Route
+  to: Plan
+  type: belongs_to
+  via: plan_id
+- from: Plan
+  to: Route
+  type: has_many
+  via: plan_id
+- from: Worker
+  to: Device
+  type: has_many
+  via: device_id
+  note: Multi-device workers are explicitly supported (https://hypertrack.com/docs/multi-device-workers).
+- from: Worker
+  to: OpsGroup
+  type: belongs_to
+  via: ops_group_handle
+- from: Worker
+  to: WorkerApprover
+  type: has_many
+  via: worker_handle
+- from: Place
+  to: Geofence
+  type: has_one
+  via: geofence_id
+- from: Visit
+  to: Place
+  type: belongs_to
+  via: place_handle
+- from: Visit
+  to: Geofence
+  type: belongs_to
+  via: geofence_id
+- from: Visit
+  to: Order
+  type: belongs_to
+  via: order_handle
+  also_via: system_generated_order_handle
+- from: Visit
+  to: Worker
+  type: belongs_to
+  via: worker_handle
+- from: Geotag
+  to: Order
+  type: belongs_to
+  via: order_handle
+  also_via: system_generated_order_handle
+- from: Geotag
+  to: Place
+  type: belongs_to
+  via: place_handle
+- from: Geotag
+  to: Worker
+  type: belongs_to
+  via: worker_handle
+- from: OrderTask
+  to: TaskDefinition
+  type: belongs_to
+  via: task_definition_id
+- from: TaskDefinition
+  to: OpsGroup
+  type: belongs_to
+  via: ops_group_handle
+geometry:
+  format: GeoJSON (RFC 7946)
+  schemas: [PointGeometry, PolygonGeometry, LocationGeometryResponse]
+  note: Order destinations are a oneOf over PointGeometry and PolygonGeometry. See conformance/hypertrack-conformance.yml.
+counts:
+  component_schemas: 395
+  entities: 15
+  relationships: 25

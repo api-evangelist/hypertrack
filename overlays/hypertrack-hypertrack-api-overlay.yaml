@@ -1,0 +1,78 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the HyperTrack API
+  version: 1.0.0
+extends: ../openapi/hypertrack-openapi.yaml
+x-generated: '2026-08-22'
+x-method: generated
+x-source: >-
+  Derived from openapi/hypertrack-openapi.yaml plus the artifacts in this repository. Captures the
+  API Evangelist enrichment as a non-destructive Overlay; the harvested spec is never mutated.
+actions:
+- target: $.info
+  description: >-
+    Record the provenance of the harvested contract and the external artifacts that describe it.
+  update:
+    x-apis-io-source: https://hypertrack.com/reference/openapi.yaml
+    x-apis-io-harvested: '2026-08-22'
+    x-apis-io-artifacts:
+      conventions: conventions/hypertrack-conventions.yml
+      errors: errors/hypertrack-problem-types.yml
+      data-model: data-model/hypertrack-data-model.yml
+      webhooks: asyncapi/hypertrack-events-webhooks.yml
+      mcp: mcp/hypertrack-mcp.yml
+      tool-crosswalk: mcp/hypertrack-tool-crosswalk.yml
+      lifecycle: lifecycle/hypertrack-lifecycle.yml
+      conformance: conformance/hypertrack-conformance.yml
+- target: $.info
+  description: >-
+    The contract declares info.version "1.0" while the API it describes is v3 (in the hostname).
+    Flag the discrepancy without altering the published value.
+  update:
+    x-version-note: >-
+      info.version is "1.0" but the API major version lives in the host
+      (https://v3.api.hypertrack.com). Do not read info.version as the API version.
+- target: $.paths
+  description: >-
+    Record the missing-operationId finding at the document level. 83 of 85 operations declare no
+    operationId, so tools, SDK generators and MCP bindings have no stable handle to bind to. No
+    operationIds are invented here — synthesising them would create identifiers the provider does
+    not recognise.
+  update:
+    x-operation-id-coverage:
+      total_operations: 85
+      with_operation_id: 2
+      with_operation_id_list: [postOauthToken, postOauthEmbedToken]
+      finding: >-
+        Every non-auth operation must be addressed by method + path. Code generation from this
+        contract will produce machine-derived method names that will not match HyperTrack's own
+        naming.
+- target: $.components.securitySchemes
+  description: >-
+    The contract declares three http schemes but no oauth2 scheme, even though POST /oauth/token
+    implements a real client_credentials grant. Record the true auth model alongside the declared
+    one.
+  update:
+    x-actual-auth-model:
+      primary: 'HTTP Basic — base64(AccountID:SecretKey)'
+      oauth2_grant: client_credentials via POST /oauth/token
+      oauth2_declared_as_scheme: false
+      scopes_published: false
+      mobile_credential: Publishable Key (SDK only, not the SecretKey)
+      see: authentication/hypertrack-authentication.yml
+- target: $.components.schemas.PointGeometry
+  description: Name the domain standard the geometry schemas implement.
+  update:
+    x-standard: GeoJSON (RFC 7946)
+- target: $.components.schemas.PolygonGeometry
+  description: Name the domain standard the geometry schemas implement.
+  update:
+    x-standard: GeoJSON (RFC 7946)
+- target: $.components.schemas.Error
+  description: Record that the error envelope is vendor JSON, not RFC 9457, and point at the catalog.
+  update:
+    x-error-catalog: errors/hypertrack-problem-types.yml
+    x-rfc9457: false
+    x-note: >-
+      Three error shapes coexist in this contract — Error (code/title/detail), ValidationError
+      (message/detail) and HTTPError (message/detail). A client must handle all three.

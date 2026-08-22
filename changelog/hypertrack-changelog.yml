@@ -1,0 +1,66 @@
+generated: '2026-08-22'
+method: searched
+source: >-
+  https://github.com/hypertrack/sdk-android/releases and
+  https://github.com/hypertrack/sdk-ios/releases (first-party, dated release notes with CHANGELOG.md
+  in each repository)
+scope: sdk
+scope_note: >-
+  HyperTrack publishes NO changelog or release-notes page for the REST API. Probed 2026-08-22:
+  https://hypertrack.com/changelog, https://hypertrack.com/docs/changelog and
+  https://hypertrack.com/releases all return HTTP 404. Dated, structured release notes DO exist,
+  but only for the mobile SDKs, published as GitHub releases and CHANGELOG.md per repository. This
+  artifact records those; do not read it as an API changelog.
+scheme: semver
+feeds:
+- https://github.com/hypertrack/sdk-android/releases.atom
+- https://github.com/hypertrack/sdk-ios/releases.atom
+current_version:
+  android: 7.14.0
+  ios: 5.14.0
+entries:
+- product: HyperTrack Android SDK
+  version: 7.14.0
+  date: '2026-08-21'
+  breaking: false
+  highlights:
+  - Authentication and network connection retries now use jittered exponential backoff to improve recovery during service or connectivity outages.
+- product: HyperTrack iOS SDK
+  version: 5.14.0
+  date: '2026-08-21'
+  breaking: false
+  highlights:
+  - Authentication and network connection retries now use jittered exponential backoff to improve recovery during service or connectivity outages.
+- product: HyperTrack Android SDK
+  version: 7.13.0
+  date: '2026-04-24'
+  breaking: false
+  highlights:
+  - Improved responsiveness of order geofence crossing updates by flushing the crossing location together with the current batch.
+- product: HyperTrack iOS SDK
+  version: 5.13.0
+  date: '2026-04-24'
+  breaking: false
+  highlights:
+  - Improved responsiveness of order geofence crossing updates by flushing the crossing location together with the current batch.
+- product: HyperTrack iOS SDK
+  version: 5.12.1
+  date: '2025-11-18'
+  breaking: false
+  highlights:
+  - Compatibility with Xcode 16.4 compiler
+- product: HyperTrack iOS SDK
+  version: 5.12.0
+  date: '2025-10-17'
+  breaking: false
+  additions:
+  - New HyperTrack.orders.track(trackMode:orders:) allows the creation and immediate tracking of order fulfillment.
+- product: HyperTrack Android SDK
+  version: 7.12.0
+  date: '2025-10-13'
+  breaking: false
+  additions:
+  - Creating orders with Orders API
+  highlights:
+  - Set memory page size to 16KB
+entry_count: 7

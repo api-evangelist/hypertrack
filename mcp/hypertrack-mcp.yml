@@ -1,0 +1,123 @@
+generated: '2026-08-22'
+method: searched
+source: https://hypertrack.com/docs/mcp-server
+name: HyperTrack MCP Server
+status: published
+vendor_version: 0.1.60
+protocol: Model Context Protocol
+deployment:
+  mode: local-stdio
+  endpoint: null
+  install: npx -y @hypertrack/mcp-server
+  package: https://www.npmjs.com/package/@hypertrack/mcp-server
+  auth: api-key
+  verified: searched
+deployment_note: >-
+  There is NO hosted remote endpoint. The server is an npm package a human installs and runs
+  locally over stdio, authenticated with the account's own HYPERTRACK_ACCOUNT_ID and
+  HYPERTRACK_SECRET_KEY environment variables. HyperTrack also ships a Streamable HTTP entry point
+  in the same package (`npx -y --package @hypertrack/mcp-server hypertrack-mcp-http`), but it binds
+  to 127.0.0.1:3000 by default, carries no authentication of its own, and is explicitly documented
+  as something the customer self-hosts — it is not a HyperTrack-operated agent surface, so `mode`
+  stays local-stdio.
+clients_documented:
+- Claude Desktop
+- Claude Code
+- Cursor
+- VS Code
+requirements:
+  runtime: Node.js 18 or later
+  credentials:
+  - HYPERTRACK_ACCOUNT_ID
+  - HYPERTRACK_SECRET_KEY
+configuration:
+- name: HYPERTRACK_ACCOUNT_ID
+  required: true
+- name: HYPERTRACK_SECRET_KEY
+  required: true
+- name: HYPERTRACK_API_BASE_URL
+  required: false
+- name: PORT
+  required: false
+- name: HOST
+  required: false
+- name: CORS_ORIGIN
+  required: false
+safety:
+  write_capable: false
+  note: >-
+    Every tool is read-only by design. HyperTrack states the server "cannot create, update, or
+    delete anything" and that read-only access is the backstop against prompt injection: a
+    successful injection can read account data but cannot cancel an order or reassign a worker.
+    The SecretKey still grants read access to the entire account, including worker locations and
+    customer addresses.
+tools_source: https://hypertrack.com/docs/mcp-server#available-tools
+tools_note: >-
+  Tool names and descriptions are taken verbatim from the provider's published tool table. Input
+  schemas were NOT captured — the server has no anonymous endpoint to run tools/list against, so
+  schemas require authenticated local introspection with a customer's own credentials.
+tools:
+- name: list_orders
+  category: Orders
+  description: List orders with filters such as status, worker, and date
+- name: get_order
+  category: Orders
+  description: Get order details, timeline, and tracking data
+- name: get_order_webhooks
+  category: Orders
+  description: Get webhook events for an order
+- name: estimate_order
+  category: Orders
+  description: Estimate route distance and duration
+- name: get_candidate_workers
+  category: Orders
+  description: Find available workers for an order
+- name: list_workers
+  category: Workers
+  description: List workers with status and summary stats
+- name: get_worker
+  category: Workers
+  description: Get worker location, device, and timeline
+- name: list_routes
+  category: Routes
+  description: List routes with order sequences
+- name: get_route
+  category: Routes
+  description: Get route details with polyline and stops
+- name: list_places
+  category: Places
+  description: List delivery zones and destinations
+- name: get_place
+  category: Places
+  description: Get place geofence and metadata
+- name: list_devices
+  category: Devices
+  description: List tracked devices
+- name: get_device
+  category: Devices
+  description: Get device location and status
+- name: get_device_history
+  category: Devices
+  description: Get device location history
+- name: list_geotags
+  category: Geotags
+  description: List proof-of-delivery geotags
+- name: get_geotag
+  category: Geotags
+  description: Get geotag details
+- name: list_visits
+  category: Visits
+  description: List geofence entry and exit events
+- name: get_visit
+  category: Visits
+  description: Get visit duration and details
+- name: list_geofences
+  category: Geofences
+  description: List geographic boundaries
+- name: get_geofence
+  category: Geofences
+  description: Get geofence geometry and visits
+- name: get_account_usage
+  category: Account
+  description: Get API usage statistics
+tool_count: 21

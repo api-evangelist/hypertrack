@@ -1,0 +1,70 @@
+generated: '2026-08-22'
+method: probed
+source: Direct HTTP probes of every apis.yml baseURL host and the OpenAPI servers[] host
+hit_count: 0
+note: >-
+  Nothing was served. v3.api.hypertrack.com (AWS API Gateway) answers every /.well-known/* path with
+  a genuine HTTP 404 and a 23-byte {"message":"Not Found"} body. hypertrack.com answers every
+  /.well-known/* path with HTTP 404 and the site's 28,074-byte HTML "Not Found" page — a real 404
+  status, not a soft-200 catch-all. developer.hypertrack.com is a single-page-app catch-all that
+  returns HTTP 200 with the same 59,961-byte HTML shell for EVERY path including /llms.txt,
+  /openapi.json and /.well-known/agent-card.json; those 200s are recorded below as soft-404s and
+  are NOT documents. No WellKnown or SecurityTxt pointer is emitted, because the provider serves
+  no /.well-known document.
+hosts:
+- host: https://v3.api.hypertrack.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+- host: https://hypertrack.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+- host: https://developer.hypertrack.com
+  soft_404_control:
+    path: /.well-known/agent-card.json
+    status: 200
+    content_type: text/html
+    bytes: 59961
+    verdict: >-
+      SPA catch-all — identical 59,961-byte HTML shell returned for /, /llms.txt, /openapi.json and
+      every /.well-known/* path probed. Treated as a miss.
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    soft_404: true
+  - path: /.well-known/agent-card.json
+    status: 200
+    soft_404: true

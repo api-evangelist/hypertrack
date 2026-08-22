@@ -1,0 +1,57 @@
+generated: '2026-08-22'
+method: searched
+source: https://github.com/hypertrack/hypertrack-skills
+note: >-
+  These are HyperTrack's OWN Agent Skill files, saved verbatim from the provider's public
+  repository on 2026-08-22 — not skills authored by API Evangelist. HyperTrack documents them at
+  https://hypertrack.com/docs/agent-skills and describes the skill as written against the
+  agentskills.io specification. Filenames are prefixed `hypertrack-` and flattened out of the
+  upstream references/ directory; content is byte-for-byte as published.
+publisher: HyperTrack
+specification: https://agentskills.io/specification
+repository: https://github.com/hypertrack/hypertrack-skills
+docs: https://hypertrack.com/docs/agent-skills
+install:
+  claude_code: git clone https://github.com/hypertrack/hypertrack-skills.git ~/.claude/skills/hypertrack-skills
+  skills_sh: npx skills add hypertrack/hypertrack-skills
+  pi: pi install git:github.com/hypertrack/hypertrack-skills
+  entry_point: skills/hypertrack-integration/SKILL.md
+credentials_required: false
+credentials_note: >-
+  The skill teaches an agent how to BUILD the integration and needs no credentials. HyperTrack's
+  own comparison table pairs it with the MCP server, which does need an AccountID and SecretKey and
+  gives an agent live account data instead.
+skills:
+- name: hypertrack-integration
+  file: hypertrack-SKILL.md
+  upstream: skills/hypertrack-integration/SKILL.md
+  api: HyperTrack API
+  description: >-
+    End-to-end HyperTrack integration. Covers mobile SDK setup (iOS, Android, React Native, Flutter,
+    Expo, Ionic Capacitor, .NET MAUI), backend APIs (Orders, Workers, Places), webhooks, and
+    verification.
+  references:
+  - file: hypertrack-backend-api.md
+    upstream: references/backend-api.md
+    covers: Orders, Workers, Places, Nearby search, embedded views; HTTP Basic auth against https://v3.api.hypertrack.com
+  - file: hypertrack-webhooks.md
+    upstream: references/webhooks.md
+    covers: webhook setup, payload shapes, order events, risk detection, geofence events
+  - file: hypertrack-troubleshooting.md
+    upstream: references/troubleshooting.md
+    covers: diagnostics, common pitfalls, outage codes
+  - file: hypertrack-sdk-ios.md
+    upstream: references/sdk-ios.md
+    covers: iOS SDK setup
+  - file: hypertrack-sdk-android.md
+    upstream: references/sdk-android.md
+    covers: Android SDK setup
+  - file: hypertrack-sdk-cross-platform.md
+    upstream: references/sdk-cross-platform.md
+    covers: React Native, Expo, Flutter, Ionic Capacitor, .NET MAUI
+agents_md:
+  file: hypertrack-AGENTS.md
+  upstream: AGENTS.md
+  note: Repository-level agent instructions published alongside the skill.
+skill_count: 1
+reference_count: 6

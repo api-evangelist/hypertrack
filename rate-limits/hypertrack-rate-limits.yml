@@ -1,0 +1,34 @@
+generated: '2026-08-22'
+method: probed
+source: >-
+  Documentation search across https://hypertrack.com/docs/llms.txt (65 guide pages),
+  https://hypertrack.com/reference/get-orders, the provider's own Agent Skill
+  (github.com/hypertrack/hypertrack-skills), plus a live unauthenticated request to
+  https://v3.api.hypertrack.com/orders/ on 2026-08-22.
+limit_count: 0
+rate_limits: []
+documented: false
+response_headers: []
+exhaustion_status: null
+note: >-
+  HyperTrack publishes no API rate limits. Nothing in the 65-page docs index, the API reference or
+  the provider's own agent skill states a quota, a window or a burst. The OpenAPI declares no 429
+  response on any of its 85 operations. A live probe of GET https://v3.api.hypertrack.com/orders/
+  without credentials returned HTTP 401 with only `date`, `content-type`, `content-length` and
+  `apigw-requestid` — no RateLimit-*, no X-RateLimit-*, no Retry-After. An agent calling this API
+  has no runtime signal for how close it is to a limit and no documented backoff contract. This is
+  an honest zero, not an unchecked field.
+observed_probe:
+  url: https://v3.api.hypertrack.com/orders/
+  method: GET
+  status: 401
+  date: '2026-08-22'
+  rate_limit_headers_present: false
+related_limits:
+  note: >-
+    The only published throughput commitments are on the WEBHOOK delivery side, not the request
+    side, and they belong to HyperTrack's egress rather than to a customer's ingress quota.
+  webhook_ack_window_seconds: 10
+  webhook_retries: 3
+  webhook_retry_delay_seconds: 20
+  see: asyncapi/hypertrack-events-webhooks.yml

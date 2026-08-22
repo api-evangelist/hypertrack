@@ -1,0 +1,73 @@
+generated: '2026-08-22'
+method: searched
+source: >-
+  https://status.hypertrack.com/, https://github.com/hypertrack/sdk-android/releases,
+  https://github.com/hypertrack/sdk-ios/releases, https://hypertrack.com/docs/migrate-to-android-sdk-7x,
+  https://hypertrack.com/docs/migrate-to-ios-sdk-5x, https://hypertrack.com/agreement,
+  derived from openapi/hypertrack-openapi.yaml
+versioning:
+  api:
+    scheme: major version in hostname
+    current: v3
+    base_url: https://v3.api.hypertrack.com
+    note: >-
+      Individual resources carry their own path version where they have been re-cut:
+      /places/v1/ and the coexisting /nearby/v3 (drivers) and /nearby/v4 (workers). The OpenAPI
+      declares info.version "1.0", which does not track the v3 host and should not be read as the
+      API version.
+  sdks:
+    scheme: semver, per platform, independently versioned
+    current:
+      android: 7.14.0
+      ios: 5.14.0
+      react_native: 14.1.0
+      flutter: 3.1.0
+      ionic_capacitor: 4.1.0
+      expo: 7.0.0
+      maui: 1.0.4
+      cordova: 2.2.3
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations_in_spec: 0
+  note: >-
+    No API deprecation policy page, no RFC 8594 Sunset/Deprecation header documented, and not one
+    operation in the 85-operation contract carries `deprecated: true`. The only deprecation signal
+    HyperTrack publishes is at the SDK layer: named major-version migration guides
+    (https://hypertrack.com/docs/migrate-to-android-sdk-7x,
+    https://hypertrack.com/docs/migrate-to-ios-sdk-5x) and archived predecessor repositories in
+    the GitHub org (ridesharing-android, ridesharing-ios, ionic-native, quickstart-ionic, perseus).
+    /nearby/v3 is superseded in practice by /nearby/v4 but is not marked deprecated in the contract.
+  migration_guides:
+  - https://hypertrack.com/docs/migrate-to-android-sdk-7x
+  - https://hypertrack.com/docs/migrate-to-ios-sdk-5x
+  - https://hypertrack.com/docs/sdk-migration-guide
+status_page:
+  url: https://status.hypertrack.com/
+  provider: Atlassian Statuspage
+  probed: '2026-08-22'
+  http_status: 200
+  current_state: All Systems Operational
+  components:
+  - Cloud service
+  - Orders
+  - Nearby
+  - Geofences
+  - Geotags
+  - Dashboard
+  - Ops Dashboard
+  - Order tracking views
+  - Webhooks
+  subscriptions: [email, Slack, Atom feed, RSS feed]
+  incident_history: 'visible on page; no incidents in the 15 days ending 2026-08-22'
+sla:
+  published: false
+  note: >-
+    No public uptime SLA or support-response commitment. The HyperTrack Software as a Service
+    Agreement (https://hypertrack.com/agreement) governs the service; any service levels are
+    contractual rather than published on the site.
+support:
+  email: help@hypertrack.com
+  contact: https://hypertrack.com/contact
+  community: Slack community (invite link published on https://hypertrack.com/docs/whitelisting)

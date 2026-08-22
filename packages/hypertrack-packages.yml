@@ -1,0 +1,128 @@
+generated: '2026-08-22'
+method: searched
+source: >-
+  Registry metadata endpoints (registry.npmjs.org, pub.dev, trunk.cocoapods.org, NuGet search),
+  GitHub releases for github.com/hypertrack/*, and the HyperTrack install docs at
+  https://hypertrack.com/docs/install-sdk
+note: >-
+  HyperTrack's Android SDK is NOT published to Maven Central — it is served from the company's own
+  Maven repository at https://s3-us-west-2.amazonaws.com/m2.hypertrack.com/, which does not expose a
+  browsable maven-metadata.xml for com/hypertrack/sdk-android (probed 2026-08-22, HTTP 404
+  NoSuchKey). Versions for the Android and iOS SDKs are read from the first-party GitHub release
+  tags instead, and that is recorded per entry.
+packages:
+- language: javascript
+  registry: npm
+  name: '@hypertrack/mcp-server'
+  url: https://www.npmjs.com/package/@hypertrack/mcp-server
+  install: npx -y @hypertrack/mcp-server
+  official: true
+  version: 0.1.60
+  published: '2026-05-14'
+  role: mcp-server
+  note: >-
+    Read-only MCP server for the HyperTrack API. Documented at
+    https://hypertrack.com/docs/mcp-server. Source repo declared in package metadata is
+    github.com/hypertrack/feature-foundation (private/not public in the org listing).
+- language: javascript
+  registry: npm
+  name: hypertrack-sdk-react-native
+  url: https://www.npmjs.com/package/hypertrack-sdk-react-native
+  install: npm install hypertrack-sdk-react-native
+  official: true
+  version: 14.1.0
+  published: '2026-05-25'
+  repository: https://github.com/hypertrack/sdk-react-native
+- language: javascript
+  registry: npm
+  name: hypertrack-sdk-ionic-capacitor
+  url: https://www.npmjs.com/package/hypertrack-sdk-ionic-capacitor
+  install: npm install hypertrack-sdk-ionic-capacitor
+  official: true
+  version: 4.1.0
+  published: '2026-05-25'
+  repository: https://github.com/hypertrack/sdk-ionic-capacitor
+- language: javascript
+  registry: npm
+  name: hypertrack-sdk-expo
+  url: https://www.npmjs.com/package/hypertrack-sdk-expo
+  install: npm install hypertrack-sdk-expo
+  official: true
+  version: 7.0.0
+  published: '2025-10-20'
+  repository: https://github.com/hypertrack/sdk-expo
+  note: Expo config plugin that auto-configures hypertrack-sdk-react-native on prebuild.
+- language: dart
+  registry: pub.dev
+  name: hypertrack_plugin
+  url: https://pub.dev/packages/hypertrack_plugin
+  install: flutter pub add hypertrack_plugin
+  official: true
+  version: 3.1.0
+  published: '2026-05-24'
+  repository: https://github.com/hypertrack/sdk-flutter
+- language: swift
+  registry: cocoapods
+  name: HyperTrack
+  url: https://cocoapods.org/pods/HyperTrack
+  install: pod 'HyperTrack'
+  official: true
+  version: 5.9.1
+  published: '2024-12-05'
+  repository: https://github.com/hypertrack/sdk-ios
+  note: >-
+    DECAY SIGNAL — the CocoaPods trunk release (5.9.1, 2024-12-05) trails the first-party GitHub
+    release of the same SDK (5.14.0, 2026-08-21) by five minor versions and roughly twenty months.
+    The docs present CocoaPods and Swift Package Manager as equal install paths; only SPM is current.
+- language: swift
+  registry: swift-package-manager
+  name: hypertrack/sdk-ios
+  url: https://github.com/hypertrack/sdk-ios
+  install: Add https://github.com/hypertrack/sdk-ios as a Swift package dependency
+  official: true
+  version: 5.14.0
+  published: '2026-08-21'
+  repository: https://github.com/hypertrack/sdk-ios
+  note: >-
+    Version read from the GitHub release tag; SPM has no central registry metadata endpoint to
+    query.
+- language: kotlin
+  registry: maven
+  name: com.hypertrack:sdk-android
+  url: https://github.com/hypertrack/sdk-android
+  install: implementation 'com.hypertrack:sdk-android:7.14.0'
+  official: true
+  version: 7.14.0
+  published: '2026-08-21'
+  repository: https://github.com/hypertrack/sdk-android
+  maven_repository: https://s3-us-west-2.amazonaws.com/m2.hypertrack.com/
+  note: >-
+    Self-hosted Maven repository, not Maven Central; maven-metadata.xml is not served (HTTP 404,
+    probed 2026-08-22). Version read from the first-party GitHub release tag. Companion artifacts
+    documented alongside it are com.hypertrack:location-services-google,
+    com.hypertrack:activity-service-google and com.hypertrack:push-service-firebase.
+- language: csharp
+  registry: nuget
+  name: HyperTrack.SDK.Maui
+  url: https://www.nuget.org/packages/HyperTrack.SDK.Maui
+  install: dotnet add package HyperTrack.SDK.Maui
+  official: true
+  version: 1.0.4
+  published: '2026-01-28'
+  repository: https://github.com/hypertrack/sdk-maui
+- language: javascript
+  registry: null
+  name: cordova-plugin-hypertrack
+  url: https://github.com/hypertrack/cordova-plugin-hypertrack
+  install: cordova plugin add https://github.com/hypertrack/cordova-plugin-hypertrack
+  official: true
+  version: 2.2.3
+  published: '2024-05-24'
+  repository: https://github.com/hypertrack/cordova-plugin-hypertrack
+  note: >-
+    Not published to npm (registry.npmjs.org returns no package document, probed 2026-08-22);
+    distributed from the GitHub repository only. Version read from the GitHub release tag.
+counts:
+  total: 10
+  official: 10
+  with_version: 10

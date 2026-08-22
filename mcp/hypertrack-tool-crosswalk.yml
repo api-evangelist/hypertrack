@@ -1,0 +1,161 @@
+generated: '2026-08-22'
+method: derived
+source: mcp/hypertrack-mcp.yml + openapi/hypertrack-openapi.yaml
+note: >-
+  The HyperTrack OpenAPI declares an operationId on only 2 of its 85 operations (postOauthToken and
+  postOauthEmbedToken). Every other operation is addressed here by METHOD + PATH, which is the only
+  stable identifier the contract offers. That is itself the finding: an agent binding a tool to a
+  REST operation has no operationId to bind to. Confidence is `medium` throughout the mapped rows
+  because the live MCP tool schemas could not be introspected without a customer's credentials, so
+  each binding is by name and documented semantics rather than by a compared inputSchema.
+surfaces:
+  openapi:
+    file: openapi/hypertrack-openapi.yaml
+    server: https://v3.api.hypertrack.com
+    operations: 85
+    gated: false
+  graphql: null
+  mcp:
+    mode: local-stdio
+    package: '@hypertrack/mcp-server'
+    endpoint: null
+    gated: true
+    gated_reason: >-
+      No anonymous endpoint exists; tools/list requires running the npm package locally with a
+      customer's HYPERTRACK_ACCOUNT_ID and HYPERTRACK_SECRET_KEY.
+crosswalk:
+- tool: list_orders
+  category: Orders
+  rest: ['GET /orders/']
+  binding: direct
+  confidence: medium
+- tool: get_order
+  category: Orders
+  rest: ['GET /orders/{order_handle}']
+  binding: direct
+  confidence: medium
+  note: The REST operation is titled "Get Order Timeline" and returns details, timeline and tracking data.
+- tool: get_order_webhooks
+  category: Orders
+  rest: ['GET /orders/{order_handle}/webhooks']
+  binding: direct
+  confidence: medium
+- tool: estimate_order
+  category: Orders
+  rest: ['GET /orders/estimate']
+  binding: direct
+  confidence: medium
+- tool: get_candidate_workers
+  category: Orders
+  rest: ['GET /orders/{order_handle}/candidate_workers']
+  binding: direct
+  confidence: medium
+- tool: list_workers
+  category: Workers
+  rest: ['GET /workers/']
+  binding: direct
+  confidence: medium
+- tool: get_worker
+  category: Workers
+  rest: ['GET /workers/{worker_handle}', 'GET /workers/{worker_handle}/history']
+  binding: composite
+  confidence: medium
+  note: Tool description covers location, device and timeline, which spans the worker record and its history.
+- tool: list_routes
+  category: Routes
+  rest: ['GET /orders/routes/']
+  binding: direct
+  confidence: medium
+- tool: get_route
+  category: Routes
+  rest: ['GET /orders/routes/{route_handle}', 'GET /orders/estimated-routes/{estimated_route_id}']
+  binding: composite
+  confidence: low
+  note: >-
+    The polyline the tool describes is returned by the estimated-routes operation, not by the route
+    record itself; the exact composition is not documented.
+- tool: list_places
+  category: Places
+  rest: ['GET /places/v1/']
+  binding: direct
+  confidence: medium
+- tool: get_place
+  category: Places
+  rest: ['GET /places/v1/{place_handle}']
+  binding: direct
+  confidence: medium
+- tool: list_geotags
+  category: Geotags
+  rest: ['GET /geotags/']
+  binding: direct
+  confidence: medium
+- tool: get_geotag
+  category: Geotags
+  rest: ['GET /geotags/{geotag_id}']
+  binding: direct
+  confidence: medium
+- tool: list_visits
+  category: Visits
+  rest: ['GET /visits/']
+  binding: direct
+  confidence: medium
+- tool: get_visit
+  category: Visits
+  rest: ['GET /visits/{visit_id}']
+  binding: direct
+  confidence: medium
+mcp_only:
+- tool: list_devices
+  reason: >-
+    The published OpenAPI has no /devices resource. Devices appear only as fields on workers and on
+    the webhook payloads.
+- tool: get_device
+  reason: No device resource in the published OpenAPI.
+- tool: get_device_history
+  reason: >-
+    No device resource in the published OpenAPI. The nearest REST analog is
+    GET /workers/{worker_handle}/history, but that is keyed on the worker, not the device, and the
+    docs do not state that the tool is backed by it.
+- tool: list_geofences
+  reason: >-
+    No /geofences resource in the published OpenAPI. Geofences are configured on places
+    (/places/v1/) and surface as geofence webhook markers; there is no public REST list operation.
+- tool: get_geofence
+  reason: No /geofences resource in the published OpenAPI.
+- tool: get_account_usage
+  reason: >-
+    No usage or billing resource in the published OpenAPI. Account usage is otherwise visible only
+    in the dashboard.
+rest_only_note: >-
+  70 of the 85 REST operations have no MCP tool. That is by design and the provider says so: every
+  MCP tool is read-only, so the entire write surface is REST-only. The classes with no tool coverage
+  are listed below rather than enumerated one operation at a time.
+rest_only_classes:
+- class: Authentication
+  operations: ['POST /oauth/token', 'POST /oauth/embed-token']
+- class: Order writes
+  note: >-
+    create/batch, track, update, cancel, complete, reassign, reschedule, enable, disable, custom
+    events, tasks CRUD, task definitions CRUD, plan trigger, export jobs
+- class: Route writes
+  note: create, update, add order, remove order, resequence, optimise, complete, reassign
+- class: Worker writes
+  note: create, patch, delete, undelete, invite, locate, work status, approvers CRUD, export jobs
+- class: Place writes
+  note: create, update, delete, suggestions create/apply, clear inferences
+- class: Visit writes
+  note: patch visit, add attachment, delete attachment
+- class: Nearby search
+  operations: ['POST /nearby/v4', 'POST /nearby/v3', 'GET /nearby/v4']
+- class: Ops groups
+  note: list, create, get, update
+- class: Public tracking view
+  operations: ['GET /tracking/{tracking_id}']
+coverage:
+  mcp_tools: 21
+  mcp_tools_mapped: 15
+  mcp_only: 6
+  rest_operations: 85
+  rest_operations_mapped: 17
+  rest_only: 70
+  rest_coverage_pct: 20

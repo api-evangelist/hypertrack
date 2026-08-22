@@ -1,0 +1,129 @@
+generated: '2026-08-22'
+method: derived
+source: openapi/hypertrack-openapi.yaml (4xx/5xx responses + response examples)
+enriched_from: https://hypertrack.com/reference/get-orders
+format: vendor-json
+rfc9457: false
+envelope:
+  media_type: application/json
+  note: >-
+    HyperTrack does NOT use RFC 9457 application/problem+json. Three error shapes coexist in the
+    contract, which is the main interoperability finding here.
+  shapes:
+  - schema: Error
+    fields: [code, title, detail]
+    note: The richest shape; used on Orders, Routes and Workers operations that carry examples.
+  - schema: ValidationError
+    fields: [message, detail]
+    note: >-
+      detail is an object keyed by location then field name, each holding an array of message
+      strings. Used on the 422 responses.
+  - schema: HTTPError
+    fields: [message, detail]
+    note: Generic shape; detail is an untyped object.
+status_codes:
+- status: 400
+  count: 6
+  meaning: Bad Request
+- status: 401
+  count: 84
+  meaning: Authentication error
+- status: 404
+  count: 61
+  meaning: Not found
+- status: 409
+  count: 3
+  meaning: Conflict
+- status: 422
+  count: 71
+  meaning: Validation error
+- status: 500
+  count: 1
+  meaning: Internal Server Error
+problem_types:
+- code: validation_error
+  status: [400, 409]
+  title: Order request is malformed / Route already completed / Route already tracking
+  remediation: >-
+    Read the detail string; it names the invalid field and the allowed values, or the state conflict
+    (e.g. a route that is already completed cannot be completed again).
+- code: duplicate_resource
+  status: [409]
+  title: Duplicate order handle found / Duplicate route found with this ID
+  detail: >-
+    System already has an incompleted order with this handle. Please complete or cancel it first.
+  remediation: >-
+    The caller-supplied handle is the natural idempotency key. Complete or cancel the existing
+    resource, or reuse it, rather than retrying the create.
+- code: order_not_found
+  status: [404]
+  title: Order Not Found
+- code: order_task_not_found
+  status: [404]
+  title: Order Task Not Found
+- code: route_not_found
+  status: [400, 404]
+  title: Route could not be found / Route does not exist
+- code: route_error
+  status: [500]
+  title: Failed to generate the route
+  detail: Server could not complete the route generation
+  remediation: Retry; this is a server-side routing failure, not a client error.
+- code: driver_not_found
+  status: [404]
+  title: Worker Not Found
+- code: driver_deleted
+  status: [404]
+  title: Worker is in deleted state for given handle
+  detail: Worker with the given handle is in deleted state. Please undelete it using Workers API
+  remediation: POST /workers/{worker_handle}/undelete restores the worker.
+- code: driver_not_linked_to_device
+  status: [400]
+  title: Worker needs to be linked to a device first
+- code: device_not_found
+  status: [404]
+  title: Device could not be found
+- code: place_not_found
+  status: [404]
+  title: Place not found
+- code: destination_place_not_found
+  status: [400]
+  title: Place not found
+  detail: Place not defined for place handle <place_handle> in order destination for order <order_handle>
+- code: geofence_not_found
+  status: [404]
+  title: Geofence Not Found
+- code: ops_group_not_defined
+  status: [400]
+  title: Ops Group is not defined
+- code: approver_already_exists
+  status: [400]
+  title: Validation Error
+  detail: Approver user_123 already exists for worker worker_456
+- code: worker_approver_not_found
+  status: [404]
+  title: Worker Approver Not Found
+problem_type_count: 16
+gaps:
+- No 429 response is declared anywhere in the contract, and no rate-limit error type is published.
+- >-
+  No `type` URI per RFC 9457, and no error-code reference page on the docs site — the codes above
+  exist only as examples inside the OpenAPI.
+device_outage_codes:
+  source: https://github.com/hypertrack/hypertrack-skills (skills/hypertrack-integration/references/troubleshooting.md)
+  note: >-
+    Not API errors. These are the reasons HyperTrack reports when a tracked device stops producing
+    location, surfaced on the order timeline and on device_status webhooks. The full enumerated list
+    of `device_status.data.reason` values is in
+    asyncapi/hypertrack-events-webhooks.yml.
+  categories:
+  - name: Behavioral
+    examples: [location permissions denied or revoked, app deleted or uninstalled, location services turned off]
+  - name: Adversarial
+    examples: [location mocking detected, time offset manipulation]
+  - name: Operating System
+    examples: [app terminated on low memory, system reboot, OS update, excessive resource usage]
+  - name: Sporadic
+    examples: [low battery, battery saver active, GPS unavailable]
+  - name: Reachability
+    examples: [no internet connectivity, push notification token missing or invalid]

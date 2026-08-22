@@ -64,5 +64,11 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-HyperTrack is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://www.nasdaqprivatemarket.com/
+HyperTrack is a location-intelligence platform for shift work, field service and last-mile delivery. Its mobile SDKs (iOS, Android, React Native, Flutter, Expo, Ionic Capacitor and .NET MAUI) collect ground-truth location from a worker's device, and its REST API at https://v3.api.hypertrack.com turns that stream into Orders, Workers, Places, Routes, Visits, Geotags and Nearby search, plus webhooks for order, route, worker, geofence, outage and trip events.
+
+- Website: https://hypertrack.com/
+- Documentation: https://hypertrack.com/docs/introduction
+- API reference: https://hypertrack.com/reference/get-orders
+- OpenAPI: https://hypertrack.com/reference/openapi.yaml
+- Status: https://status.hypertrack.com/
+- GitHub: https://github.com/hypertrack

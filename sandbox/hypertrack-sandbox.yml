@@ -1,0 +1,57 @@
+generated: '2026-08-22'
+method: searched
+source: >-
+  https://hypertrack.com/docs/mock-location, https://hypertrack.com/docs/sdk-config,
+  https://hypertrack.com/playground-with-simulated-drivers, https://hypertrack.com/dashboard-demo
+model: no separate test environment
+model_note: >-
+  HyperTrack does NOT publish a sandbox API host, test-mode keys, or a test/live key-prefix split.
+  There is one production API at https://v3.api.hypertrack.com and one credential pair
+  (AccountID / SecretKey plus a mobile Publishable Key). What it does publish is DEVICE-LEVEL
+  simulation: because the product's input is a real phone's location stream, the testing story is
+  about faking that stream rather than about a mock server. No test credentials or fixture values
+  are published, and none are invented here.
+test_environments: []
+test_credentials: []
+simulation:
+- name: Mock location on device
+  docs: https://hypertrack.com/docs/mock-location
+  mechanism: >-
+    The SDK ignores mocked locations by default and raises an Outage in the worker timeline, because
+    mocking is normally a fraud signal. To test with mock locations on a real (non-emulator) device
+    the app must be built with the SDK config flag below.
+  config_flag:
+    name: HyperTrackAllowMockLocation
+    platforms: [iOS, Android]
+    type: boolean
+    default: false
+    location: AndroidManifest / Info.plist
+    docs: https://hypertrack.com/docs/sdk-config
+  caveat: >-
+    HyperTrack filters implausible data — "sudden teleports to a different city" are rejected — so
+    simulated tracks must be realistic to exercise the platform.
+- name: Android emulator location simulation
+  platform: Android
+  mechanism: >-
+    Android Emulator extended controls set a point location or simulate movement. Locations
+    simulated this way are NOT flagged as mocked even when HyperTrackAllowMockLocation is false.
+- name: Android mock location provider app
+  platform: Android
+  mechanism: A mock-location provider app on a real device; Android marks these events as mocked.
+- name: iOS Simulator location presets
+  platform: iOS
+  mechanism: >-
+    Features > Location in the simulator status bar — Custom Location, Apple Stores, Apple, City
+    Bicycle Ride, City Run, Freeway Drive.
+- name: Xcode simulated location in tests
+  platform: iOS
+  mechanism: GPX-driven simulated location in an XCTest run; the docs recommend the "City Run" track.
+demo_surfaces:
+- name: Playground with Simulated Drivers
+  url: https://hypertrack.com/playground-with-simulated-drivers
+  note: A simulated environment for developers to test last-mile use cases against the HyperTrack APIs.
+- name: Public dashboard demo
+  url: https://hypertrack.com/dashboard-demo
+  note: A public HyperTrack web dashboard populated with synthetic operations data. No login required.
+test_data_published: false
+test_clocks: false

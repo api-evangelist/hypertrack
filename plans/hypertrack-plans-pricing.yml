@@ -1,0 +1,93 @@
+generated: '2026-08-22'
+method: searched
+source: https://hypertrack.com/pricing
+currency: USD
+model: usage-based, with per-user and per-shift components
+minimum_commitment: $300 per month, billed annually
+plans:
+- name: Basic Visibility
+  family: Track
+  price: 10
+  currency: USD
+  unit: per user
+  billing_period: month
+  includes:
+  - Geotags
+  - Manual visits
+  - SDK integration
+  - Geofences
+  - Automatic visits
+  - Visits App
+- name: Location Intelligence
+  family: Track
+  price_min: 0.10
+  price_max: 0.35
+  currency: USD
+  unit: per shift
+  billing_period: usage
+  includes:
+  - Pre-shift tracking
+  - Live ETA
+  - Real-time webhooks
+  - No-call-no-show scoring
+  - Nearby search
+  - On-shift tracking
+  - Places intelligence
+- name: Closeout Agent
+  family: Track
+  price_min: 0.35
+  price_max: 1.00
+  currency: USD
+  unit: per shift
+  billing_period: usage
+  status: new
+  includes:
+  - Engages workers like a helpful operations manager for every shift
+- name: Mobile App & CRM Integration
+  family: Field Service Management
+  price_min: 10
+  price_max: 12.5
+  currency: USD
+  unit: per user
+  billing_period: month
+  includes:
+  - Mobile app
+  - Scheduling
+  - Time and attendance
+  - Live timeline
+  - Billable hours and mileage tracking
+- name: CRM Integration (standalone)
+  family: Field Service Management
+  price: 300
+  currency: USD
+  unit: minimum per month
+  billing_period: month
+  billing_note: paid annually; $3,600/year covers up to 24 users
+  overage:
+    price: 12.5
+    unit: per additional user per month
+- name: Pilot Program
+  family: Trial
+  price: 10000
+  currency: USD
+  unit: fixed
+  billing_period: one-time
+  term: 6 weeks
+  includes:
+  - HyperTrack team support
+- name: Custom / Enterprise
+  family: Enterprise
+  price: null
+  unit: custom price per order
+  billing_period: contract
+  contact_sales: true
+  note: Enterprise contracts and custom per-order pricing available on request via https://hypertrack.com/contact
+plan_count: 7
+free_tier:
+  published: false
+  note: >-
+    The pricing page markets "Start free, pay as you go" in its meta description, but no free-tier
+    quota, no trial length and no self-serve free plan limits are stated on the page itself. The
+    only named entry point with a price is the $10,000 six-week Pilot Program, and the page states
+    a $300/month minimum billed annually. Recorded as "no published free tier" rather than inferred.
+machine_readable_pricing: false

@@ -1,0 +1,95 @@
+generated: '2026-08-22'
+method: searched
+source: >-
+  https://hypertrack.com/reference/get-orders, openapi/hypertrack-openapi.yaml,
+  https://github.com/hypertrack/hypertrack-skills (references/backend-api.md),
+  https://hypertrack.com/docs/sdk-config, https://hypertrack.com/docs/mcp-server
+docs: https://hypertrack.com/docs/build-your-app
+summary:
+  types: [http, oauth2]
+  primary: HTTP Basic
+  transport_security: TLS 1.3 (probed 2026-08-22)
+  credential_issuance: https://dashboard.hypertrack.com/setup
+schemes:
+- name: BasicAuth
+  type: http
+  scheme: basic
+  declared_in_spec: true
+  credential: 'base64(AccountID:SecretKey)'
+  header: 'Authorization: Basic <base64(AccountID:SecretKey)>'
+  applies_to: 83 of 85 operations (everything except the two token endpoints)
+  note: >-
+    This is the credential HyperTrack's own docs and agent skill use in every server-side example.
+    The SecretKey grants full read AND write access to the whole account; HyperTrack's MCP page
+    warns it should be treated like a password.
+  sources:
+  - openapi/hypertrack-openapi.yaml
+  - https://github.com/hypertrack/hypertrack-skills
+- name: TokenAuth
+  type: http
+  scheme: bearer
+  declared_in_spec: true
+  header: 'Authorization: Bearer <access_token>'
+  note: >-
+    The bearer token issued by POST /oauth/token. Declared as a plain http/bearer scheme rather
+    than as an oauth2 scheme with flows, which is why derive-oauth-scopes.py found no oauth2 flows
+    to read.
+  sources:
+  - openapi/hypertrack-openapi.yaml
+- name: BearerAuth
+  type: http
+  scheme: bearer
+  declared_in_spec: true
+  note: >-
+    A third securityScheme, structurally identical to TokenAuth. The contract declares both and does
+    not explain the difference; treat them as the same bearer credential.
+  sources:
+  - openapi/hypertrack-openapi.yaml
+oauth2:
+  supported: true
+  declared_as_securityscheme: false
+  grant: client_credentials
+  token_endpoint: https://v3.api.hypertrack.com/oauth/token
+  token_endpoint_operation_id: postOauthToken
+  request_media_type: application/x-www-form-urlencoded
+  request_params:
+    required: [grant_type, client_id, client_secret]
+    optional: [scope]
+  response_fields: [access_token, token_type, expires_in]
+  token_lifetime: short-lived; expires_in returned per token, value not documented as a constant
+  errors:
+    '401': Invalid client credentials.
+    '400': Invalid parameters (missing embed_url or invalid grant_type).
+  scopes:
+    published: false
+    note: >-
+      The token endpoint accepts an optional space-delimited `scope` parameter but HyperTrack
+      publishes no scope names and no securityScheme declares scopes. No scopes/ artifact is
+      written, because deriving one would mean inventing scope strings.
+embed_tokens:
+  operation: POST /oauth/embed-token
+  operation_id: postOauthEmbedToken
+  summary: Secure embed view
+  purpose: Mints a scoped token authorising an embedded HyperTrack Ops view for a given embed_url.
+  see: components/hypertrack-components.yml
+mobile_sdk_credential:
+  name: Publishable Key
+  where: AndroidManifest / Info.plist, key HyperTrackPublishableKey
+  docs: https://hypertrack.com/docs/sdk-config
+  note: >-
+    A distinct credential from the server-side SecretKey, shipped inside the customer's mobile app.
+    Confusing the two is the most likely credential mistake in a HyperTrack integration, so it is
+    recorded here explicitly.
+mcp_credential:
+  env: [HYPERTRACK_ACCOUNT_ID, HYPERTRACK_SECRET_KEY]
+  note: >-
+    The MCP server reuses the same AccountID/SecretKey pair. There is no scoped or read-only
+    credential to hand an agent — the read-only guarantee comes from the server's tool set, not
+    from the key. See mcp/hypertrack-mcp.yml.
+unauthenticated_surface:
+- operation: GET /tracking/{tracking_id}
+  note: The public order-tracking view; the only data operation in the contract with no security requirement.
+- operation: POST /oauth/token
+- operation: POST /oauth/embed-token
+mtls: false
+openid_connect: false

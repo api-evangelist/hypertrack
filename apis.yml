@@ -1,18 +1,77 @@
 aid: hypertrack
 name: HyperTrack
-description: 'HyperTrack is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  HyperTrack is a location-intelligence platform for shift work, field service and last-mile
+  delivery. Its mobile SDKs (iOS, Android, React Native, Flutter, Expo, Ionic Capacitor and .NET
+  MAUI) collect ground-truth location from a worker's device, and its REST API — the HyperTrack API
+  at https://v3.api.hypertrack.com — turns that stream into Orders, Workers, Places, Routes, Visits,
+  Geotags and Nearby search, plus webhooks for order, route, worker, geofence, outage and trip
+  events. Companies use it to verify time and attendance, detect no-call-no-show risk, plan and
+  optimise routes, and close out shifts for pay and billing. HyperTrack publishes a machine-readable
+  OpenAPI 3.0.3 definition, an llms.txt index, an npm-distributed MCP server, and an open-source
+  Agent Skill for coding agents.
+image: https://hypertrack.com/images/og-home.png
 url: https://raw.githubusercontent.com/api-evangelist/hypertrack/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-22'
 modified: '2026-08-22'
 tags:
 - Company
-apis: []
+- Location
+- Geolocation
+- Tracking
+- Logistics
+- Last Mile Delivery
+- Field Service
+- Workforce
+- Time and Attendance
+- Mobile SDK
+- Geofencing
+- Routing
+apis:
+- aid: hypertrack:hypertrack-api
+  name: HyperTrack API
+  description: >-
+    The HyperTrack REST API for Orders, Workers, Places, Routes, Visits, Geotags, Nearby search,
+    Tracking views and Export jobs. Authenticated with OAuth 2.0 client_credentials (or HTTP Basic
+    with AccountID / SecretKey), served from https://v3.api.hypertrack.com. 85 operations across 64
+    paths in the provider-published OpenAPI 3.0.3 definition.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - Orders
+  - Workers
+  - Places
+  - Routes
+  - Visits
+  - Geotags
+  - Nearby
+  - Tracking
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-openapi.yaml
+  - type: Overlay
+    url: overlays/hypertrack-hypertrack-api-overlay.yaml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -20,4 +79,65 @@ maintainers:
   email: info@apis.io
 common:
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://hypertrack.com/
+- type: DeveloperPortal
+  url: https://hypertrack.com/docs/introduction
+- type: Documentation
+  url: https://hypertrack.com/docs/introduction
+- type: APIReference
+  url: https://hypertrack.com/reference/get-orders
+- type: GettingStarted
+  url: https://hypertrack.com/docs/build-your-app
+- type: Support
+  url: https://hypertrack.com/contact
+- type: Blog
+  url: https://stories.hypertrack.com/
+- type: BlogRSS
+  url: https://stories.hypertrack.com/rss.xml
+- type: GitHubOrganization
+  url: https://github.com/hypertrack
+- type: Pricing
+  url: https://hypertrack.com/pricing
+- type: SignUp
+  url: https://dashboard.hypertrack.com/signup
+- type: Login
+  url: https://dashboard.hypertrack.com/login
+- type: TermsOfService
+  url: https://hypertrack.com/terms
+- type: PrivacyPolicy
+  url: https://hypertrack.com/privacy
+- type: StatusPage
+  url: https://status.hypertrack.com/
+- type: Postman
+  url: https://www.postman.com/hypertrack/hypertrack/documentation/krztgzd/hypertrack-api
+- type: Packages
+  url: packages/hypertrack-packages.yml
+- type: SDKs
+  url: packages/hypertrack-packages.yml
+- type: LLMsTxt
+  url: llms/hypertrack-llms.txt
+- type: MCPServer
+  url: mcp/hypertrack-mcp.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Lifecycle
+  url: lifecycle/hypertrack-lifecycle.yml
+- type: Conformance
+  url: conformance/hypertrack-conformance.yml
+- type: DomainSecurity
+  url: security/hypertrack-domain-security.yml
+- type: Plans
+  url: plans/hypertrack-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/hypertrack-rate-limits.yml
+- type: Sandbox
+  url: sandbox/hypertrack-sandbox.yml
+- type: ChangeLog
+  url: changelog/hypertrack-changelog.yml
+- type: Components
+  url: components/hypertrack-components.yml
+x-enrichment:
+  date: '2026-08-22'
+  status: enriched
+  artifacts_added: 21
+  pass: local-v1

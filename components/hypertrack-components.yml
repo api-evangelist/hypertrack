@@ -1,0 +1,65 @@
+generated: '2026-08-22'
+method: searched
+source: >-
+  https://hypertrack.com/docs/embed-views-into-ops-dashboard, https://hypertrack.com/operations-views,
+  https://hypertrack.com/docs/order-ops-views, https://hypertrack.com/docs/workers-ops-views,
+  https://hypertrack.com/docs/places-ops-views, https://hypertrack.com/docs/facility-manager-view,
+  openapi/hypertrack-openapi.yaml (POST /oauth/embed-token)
+summary: >-
+  HyperTrack ships a family of embeddable "Ops Views" — hosted, responsive web surfaces a customer
+  drops into their own dashboard inside an iframe, authorised with a scoped embed token minted by
+  the API. These are distinct from the mobile SDKs in packages/: they are UI, not client libraries.
+families:
+- name: Ops Views (embedded dashboards)
+  delivery: iframe
+  auth:
+    operation: POST /oauth/embed-token
+    summary: Secure embed view
+    note: >-
+      Mints a scoped token for an embed URL. The operation rejects a request missing `embed_url`
+      with HTTP 400.
+  views:
+  - name: Order Ops View
+    docs: https://hypertrack.com/docs/order-ops-views
+  - name: Worker Ops View
+    docs: https://hypertrack.com/docs/workers-ops-views
+  - name: Places Ops View
+    docs: https://hypertrack.com/docs/places-ops-views
+  - name: Facility Manager View
+    docs: https://hypertrack.com/docs/facility-manager-view
+  - name: Location Timeline
+    docs: https://hypertrack.com/docs/location-timeline
+  - name: Trip Replay
+    docs: https://hypertrack.com/tripreplay
+  implementation_notes:
+  - Default iframe size is 300x200; responsiveness is the integrator's job via CSS.
+  - Views switch to a mobile layout below 500 pixels.
+  - 'If the iframe sandbox attribute is used it must include allow-scripts allow-same-origin.'
+  - Set the iframe src from JavaScript after main content loads, for perceived speed.
+  - Views auto-organise devices by metadata set through the SDK or API.
+- name: Public order tracking view
+  delivery: hosted URL
+  operation: GET /tracking/{tracking_id}
+  auth: none (unauthenticated; the only operation in the contract with no security requirement besides the token endpoints)
+  note: The shareable end-customer tracking page for an order.
+- name: No-code apps
+  delivery: mobile app
+  note: >-
+    Prebuilt worker-facing apps a customer can use instead of building their own — the Orders App
+    and the Visits App.
+  surfaces:
+  - name: Orders App
+    docs: https://hypertrack.com/docs/distribute-orders-app
+  - name: Visits App
+    docs: https://hypertrack.com/docs/distribute-visits-app
+open_source_view_libraries:
+  note: >-
+    Older first-party view libraries exist in the GitHub org but are unmaintained (last pushed
+    2020-2023) and are not referenced from the current docs. Recorded for completeness, not
+    recommended.
+  repositories:
+  - https://github.com/hypertrack/views-react
+  - https://github.com/hypertrack/sdk-views-ios
+  - https://github.com/hypertrack/sdk-views-android
+  - https://github.com/hypertrack/views-swiftui
+  - https://github.com/hypertrack/views-flutter

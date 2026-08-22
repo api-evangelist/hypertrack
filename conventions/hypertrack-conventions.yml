@@ -1,0 +1,175 @@
+generated: '2026-08-22'
+method: searched
+source: >-
+  https://hypertrack.com/reference/get-orders, https://hypertrack.com/docs/introduction,
+  https://github.com/hypertrack/hypertrack-skills (references/backend-api.md, references/webhooks.md,
+  references/troubleshooting.md), derived from openapi/hypertrack-openapi.yaml
+base_url: https://v3.api.hypertrack.com
+media_type: application/json
+authentication:
+  primary: 'HTTP Basic — Authorization: Basic base64(AccountID:SecretKey)'
+  alternative: >-
+    OAuth 2.0 client_credentials — POST /oauth/token with grant_type=client_credentials, client_id
+    and client_secret (application/x-www-form-urlencoded), returns a short-lived access_token used
+    as Authorization: Bearer <access_token>. An optional space-delimited `scope` parameter is
+    accepted but no scope names are published.
+  embed: >-
+    POST /oauth/embed-token mints a scoped token for embedding HyperTrack Ops views in a customer
+    dashboard.
+  mobile: >-
+    The mobile SDKs authenticate with a separate Publishable Key set in AndroidManifest / Info.plist
+    (HyperTrackPublishableKey). It is not the same credential as the server-side SecretKey.
+  see: authentication/hypertrack-authentication.yml
+identifiers:
+  style: caller-supplied natural keys
+  note: >-
+    HyperTrack resources are addressed by handles the CUSTOMER chooses, not by server-generated IDs:
+    order_handle is your shift or job ID, worker_handle is your internal user ID, place_handle is
+    your location ID, ops_group_handle is your division ID. route_handle behaves the same way. This
+    is what makes creates natural-key idempotent (see below).
+  server_generated: [visit_id, geotag_id, task_id, task_definition_id, plan_id, job_id, estimated_route_id, tracking_id, device_id]
+idempotency:
+  supported: partial
+  mechanism: caller-supplied natural key with conflict detection
+  header: null
+  note: >-
+    HyperTrack publishes NO Idempotency-Key request header. What it does publish is natural-key
+    idempotency on the create path: because order_handle, worker_handle, place_handle and
+    route_handle are supplied by the caller, a repeated create returns HTTP 409 with
+    code `duplicate_resource` ("System already has an incompleted order with this handle. Please
+    complete or cancel it first") instead of silently creating a second resource. That makes a
+    retried create safe against duplication, but it does NOT replay the original response, and it
+    does not extend to the action endpoints (cancel, complete, reassign, reschedule, enable,
+    disable), which have no replay-protection mechanism at all. Treat this as partial idempotency,
+    not as Stripe-style key-based idempotency.
+  evidence:
+  - openapi/hypertrack-openapi.yaml — POST /orders/track 409 example `duplicate_resource`
+  - openapi/hypertrack-openapi.yaml — POST /orders/routes/{route_handle}/complete 409 example `route_already_completed`
+pagination:
+  style: cursor
+  request_params: [limit, pagination_token]
+  response_field: pagination_token
+  note: >-
+    Collection operations take `limit` and an opaque `pagination_token`; the token appears on 15
+    operations and `limit` on 16. There is no page/offset style anywhere in the contract.
+filtering_and_sorting:
+  common_params: [from_time, to_time, from_date, to_date, status, search_term, sort_direction, aggregate, include_summary, region_filter, device_id]
+metadata:
+  supported: true
+  note: >-
+    Orders, workers, places and geotags carry a free-form `metadata` object that HyperTrack echoes
+    back on API reads and on webhook payloads. It is the documented way to carry your own foreign
+    keys through the platform.
+versioning:
+  style: host + path
+  note: >-
+    The API major version is in the hostname (v3.api.hypertrack.com). A handful of resources carry
+    their own path version independently: /places/v1/, /nearby/v3 and /nearby/v4 coexist as
+    separate live operations, and /nearby/v3 is described as the driver-oriented predecessor of the
+    worker-oriented /nearby/v4. No version request header is published.
+  see: lifecycle/hypertrack-lifecycle.yml
+errors:
+  envelope: vendor-json (three shapes — Error, ValidationError, HTTPError)
+  rfc9457: false
+  see: errors/hypertrack-problem-types.yml
+rate_limit_signaling:
+  documented: false
+  headers: []
+  note: >-
+    No published limits, no RateLimit-*/X-RateLimit-* headers, no 429 response declared in the
+    contract, and none observed on a live unauthenticated 401 from v3.api.hypertrack.com (probed
+    2026-08-22 — the only non-standard header returned is apigw-requestid).
+  see: rate-limits/hypertrack-rate-limits.yml
+request_tracing:
+  header: apigw-requestid
+  note: >-
+    Observed on live responses from v3.api.hypertrack.com (AWS API Gateway). It is not documented
+    as a support-correlation identifier, so treat it as an infrastructure header rather than a
+    contract guarantee. Webhook deliveries carry x-amz-sns-message-id, which IS documented as the
+    deduplication key across retries.
+webhook_conventions:
+  signature_header: x-hypertrack-signature
+  transport: 'HTTPS POST, application/json, body is a JSON array of event objects'
+  ack_window: 'respond 200-4xx within 10 seconds'
+  retries: up to 3 retries, 20 seconds apart, reusing the same x-amz-sns-message-id
+  dedup_key: order_handle + data.value + recorded_at (provider's published recommendation)
+  ordering: best-effort; compare recorded_at rather than relying on delivery order
+  see: asyncapi/hypertrack-events-webhooks.yml
+dry_run_mode:
+  supported: false
+  note: >-
+    No preview/simulate/validate-only parameter anywhere in the contract. The closest thing is
+    GET /orders/estimate, which returns a route estimate without creating an order — a read-only
+    planning aid, not a dry run of a write.
+reversibility:
+  grade: documented
+  note: >-
+    HyperTrack ships real reversal operations across every write surface, and they are visible in
+    the contract. What it does NOT publish anywhere is a WINDOW — no documentation page states how
+    long after an order completes it can be reopened, how long a deleted worker stays undeletable,
+    or whether a cancelled order can be re-enabled. Grade is therefore `documented`, not `verified`.
+    No window is asserted here because none is published, and inventing one would be the single
+    most expensive error in this artifact.
+  surfaces:
+  - write: create order
+    operation: POST /orders/
+    reversal: POST /orders/{order_handle}/cancel
+    reversal_name: Cancel Order
+    window: null
+    window_source: null
+  - write: enable order
+    operation: POST /orders/{order_handle}/enable
+    reversal: POST /orders/{order_handle}/disable
+    reversal_name: Disable Order
+    window: null
+    note: enable and disable are mutually reversing; both are published operations.
+  - write: complete order
+    operation: POST /orders/{order_handle}/complete
+    reversal: null
+    window: null
+    note: >-
+      No un-complete operation is published. Completion is the terminal state and appears to be
+      one-way; the docs do not say so explicitly, so this is recorded as "no published reversal"
+      rather than as "irreversible".
+  - write: delete worker
+    operation: DELETE /workers/{worker_handle}
+    reversal: POST /workers/{worker_handle}/undelete
+    reversal_name: Undelete Worker
+    window: null
+    window_source: null
+    note: >-
+      The 404 `driver_deleted` error explicitly instructs the caller to undelete, so the reversal is
+      part of the documented control flow — but no retention period is stated.
+  - write: assign order to worker
+    operation: POST /orders/
+    reversal: POST /orders/{order_handle}/reassign
+    reversal_name: Reassign Order
+    window: null
+  - write: schedule order
+    operation: POST /orders/
+    reversal: POST /orders/{order_handle}/reschedule
+    reversal_name: Reschedule Order
+    window: null
+  - write: add order to route
+    operation: POST /orders/routes/{route_handle}/add
+    reversal: POST /orders/routes/{route_handle}/remove
+    reversal_name: Remove Order
+    window: null
+  - write: create order task
+    operation: POST /orders/{order_handle}/tasks
+    reversal: DELETE /orders/{order_handle}/tasks/{task_id}
+    window: null
+  - write: add visit attachment
+    operation: POST /visits/{visit_id}/attachments
+    reversal: DELETE /visits/{visit_id}/attachments/{attachment_id}
+    window: null
+  - write: create place / task definition / worker approver
+    operation: 'POST /places/v1/, POST /orders/tasks-definitions, POST /workers/{worker_handle}/approvers'
+    reversal: matching DELETE operations
+    window: null
+  - write: apply place suggestion
+    operation: POST /places/v1/{place_handle}/suggestions/{suggestion_id}/apply
+    reversal: POST /places/v1/{place_handle}/inferences/clear
+    reversal_name: Clear the inferences of a place
+    window: null
+    note: Clears learned geofence inferences; not a strict undo of one applied suggestion.
