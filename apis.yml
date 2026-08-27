@@ -31,29 +31,268 @@ tags:
 - Geofencing
 - Routing
 apis:
-- aid: hypertrack:hypertrack-api
-  name: HyperTrack API
-  description: >-
-    The HyperTrack REST API for Orders, Workers, Places, Routes, Visits, Geotags, Nearby search,
-    Tracking views and Export jobs. Authenticated with OAuth 2.0 client_credentials (or HTTP Basic
-    with AccountID / SecretKey), served from https://v3.api.hypertrack.com. 85 operations across 64
-    paths in the provider-published OpenAPI 3.0.3 definition.
+- aid: hypertrack:hypertrack-authentication-api
+  name: HyperTrack Authentication API
+  description: Obtain and use access tokens for the HyperTrack API.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - Authentication
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-authentication-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-export-api
+  name: HyperTrack Export API
+  description: The Export API from HyperTrack — 2 operation(s) for export.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - Export
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-export-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-geotags-api
+  name: HyperTrack Geotags API
+  description: The Geotags API from HyperTrack — 2 operation(s) for geotags.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - Geotags
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-geotags-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-nearby-api
+  name: HyperTrack Nearby API
+  description: The Nearby API from HyperTrack — 2 operation(s) for nearby.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - Nearby
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-nearby-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-orders-api
+  name: HyperTrack Orders API
+  description: The Orders API from HyperTrack — 32 operation(s) for orders.
   humanURL: https://hypertrack.com/reference/get-orders
   baseURL: https://v3.api.hypertrack.com
   tags:
   - Orders
-  - Workers
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-orders-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-places-api
+  name: HyperTrack Places API
+  description: The Places API from HyperTrack — 7 operation(s) for places.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
   - Places
-  - Routes
-  - Visits
-  - Geotags
-  - Nearby
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-places-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-tracking-api
+  name: HyperTrack Tracking API
+  description: The Tracking API from HyperTrack — 1 operation(s) for tracking.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
   - Tracking
   properties:
   - type: OpenAPI
-    url: openapi/hypertrack-openapi.yaml
-  - type: Overlay
-    url: overlays/hypertrack-hypertrack-api-overlay.yaml
+    url: openapi/hypertrack-tracking-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-visits-api
+  name: HyperTrack Visits API
+  description: The Visits API from HyperTrack — 4 operation(s) for visits.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - Visits
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-visits-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-workerexport-api
+  name: HyperTrack Worker Export API
+  description: The WorkerExport API from HyperTrack — 2 operation(s) for workerexport.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - WorkerExport
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-workerexport-api-openapi.yml
+  - type: Documentation
+    url: https://hypertrack.com/docs/introduction
+  - type: APIReference
+    url: https://hypertrack.com/reference/get-orders
+  - type: Authentication
+    url: authentication/hypertrack-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hypertrack-problem-types.yml
+  - type: DataModel
+    url: data-model/hypertrack-data-model.yml
+  - type: Conventions
+    url: conventions/hypertrack-conventions.yml
+  - type: Idempotency
+    url: conventions/hypertrack-conventions.yml
+  - type: Webhooks
+    url: asyncapi/hypertrack-events-webhooks.yml
+  - type: ToolCrosswalk
+    url: mcp/hypertrack-tool-crosswalk.yml
+- aid: hypertrack:hypertrack-workers-api
+  name: HyperTrack Workers API
+  description: The Workers API from HyperTrack — 14 operation(s) for workers.
+  humanURL: https://hypertrack.com/reference/get-orders
+  baseURL: https://v3.api.hypertrack.com
+  tags:
+  - Workers
+  properties:
+  - type: OpenAPI
+    url: openapi/hypertrack-workers-api-openapi.yml
   - type: Documentation
     url: https://hypertrack.com/docs/introduction
   - type: APIReference
@@ -78,6 +317,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/hypertrack-hypertrack-api-overlay.yaml
 - type: Website
   url: https://hypertrack.com/
 - type: DeveloperPortal
