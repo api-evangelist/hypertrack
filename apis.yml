@@ -10,6 +10,18 @@ description: >-
   optimise routes, and close out shifts for pay and billing. HyperTrack publishes a machine-readable
   OpenAPI 3.0.3 definition, an llms.txt index, an npm-distributed MCP server, and an open-source
   Agent Skill for coding agents.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://hypertrack.com/images/og-home.png
 url: https://raw.githubusercontent.com/api-evangelist/hypertrack/refs/heads/main/apis.yml
 x-type: company
