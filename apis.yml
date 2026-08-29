@@ -329,6 +329,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/hypertrack-capability-edges.yml
+  name: HyperTrack Business Capability Map
 - type: Overlay
   url: overlays/hypertrack-hypertrack-api-overlay.yaml
 - type: Website
