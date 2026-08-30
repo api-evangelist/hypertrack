@@ -1,0 +1,136 @@
+openapi: 3.2.0
+info:
+  title: HyperTrack Authentication API
+  version: '1.0'
+  description: HyperTrack API Reference — Orders, Workers, Places, Routes, and more.
+  contact:
+    name: HyperTrack support
+    url: https://hypertrack.com/contact
+    email: help@hypertrack.com
+servers:
+- url: https://v3.api.hypertrack.com
+tags:
+- name: Authentication
+  description: Obtain and use access tokens for the HyperTrack API.
+paths:
+  /oauth/token:
+    post:
+      tags:
+      - Authentication
+      operationId: postOauthToken
+      summary: Create access token
+      description: 'Exchange your `client_id` and `client_secret` for a short-lived bearer token using the OAuth 2.0 `client_credentials` grant. Send the returned `access_token` as `Authorization: Bearer <access_token>` on all API requests.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - grant_type
+              - client_id
+              - client_secret
+              properties:
+                grant_type:
+                  type: string
+                  enum:
+                  - client_credentials
+                  description: Must be `client_credentials`.
+                client_id:
+                  type: string
+                  description: Your account's client ID.
+                client_secret:
+                  type: string
+                  description: Your account's client secret.
+                scope:
+                  type: string
+                  description: Optional space-delimited list of scopes.
+      responses:
+        '200':
+          description: Token issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: Bearer token to use on subsequent API requests.
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    description: Token lifetime in seconds.
+        '401':
+          description: Invalid client credentials.
+  /oauth/embed-token:
+    post:
+      tags:
+      - Authentication
+      operationId: postOauthEmbedToken
+      summary: Secure embed view
+      description: 'Exchange an embeddable view URL for a short-lived secure URL with an access token appended, for safely embedding HyperTrack views (such as an order view or dashboard) in your own UI. Authenticate with HTTP Basic auth using your account ID and secret key.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - embed_url
+              - grant_type
+              properties:
+                embed_url:
+                  type: string
+                  description: URL to be embedded securely (e.g. an order view or dashboard).
+                  example: https://embed.hypertrack.com/orders/my_order_handle?fulfillment-attempt=0&show-visits-only=true
+                grant_type:
+                  type: string
+                  enum:
+                  - client_credentials
+                  description: Must be `client_credentials`.
+      responses:
+        '200':
+          description: Secure embed URL issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: The OAuth access token.
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    description: Token lifetime in seconds.
+                  embed_url:
+                    type: string
+                    description: Original URL to be embedded.
+                  secure_embed_url:
+                    type: string
+                    description: Secure URL with the token appended for embedding.
+        '400':
+          description: Invalid parameters (missing `embed_url` or invalid `grant_type`).
+        '401':
+          description: Authentication failed.
+        '404':
+          description: Order or device not found.
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    TokenAuth:
+      type: http
+      scheme: bearer
+    BearerAuth:
+      type: http
+      scheme: bearer

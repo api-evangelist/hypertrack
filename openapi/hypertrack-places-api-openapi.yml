@@ -1,0 +1,1960 @@
+openapi: 3.2.0
+info:
+  title: HyperTrack Places API
+  version: '1.0'
+  description: HyperTrack API Reference — Orders, Workers, Places, Routes, and more.
+  contact:
+    name: HyperTrack support
+    url: https://hypertrack.com/contact
+    email: help@hypertrack.com
+servers:
+- url: https://v3.api.hypertrack.com
+tags:
+- name: Places
+paths:
+  /places/v1/:
+    get:
+      parameters:
+      - in: query
+        name: place_handles
+        description: List of place handles as comma separated strings used for fetching associated Places
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: search_term
+        description: Keyword to match against place handle (or place id) OR name OR metadata
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: name
+        description: Filter places by name (case-insensitive partial match)
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: lat
+        description: latitude of location around which places should be searched
+        schema:
+          type:
+          - number
+          - 'null'
+        required: false
+      - in: query
+        name: lon
+        description: longitude of location around which places should be searched
+        schema:
+          type:
+          - number
+          - 'null'
+        required: false
+      - in: query
+        name: radius
+        description: radius around location which places should be searched, if given metadata is ignored
+        schema:
+          type:
+          - integer
+          - 'null'
+        required: false
+      - in: query
+        name: metadata
+        description: metadata of the order as json encoded string
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: min_skew
+        description: Minimum skew to filter for. Skew in inferred geofence can be between 0 and 1. 0 mean no skew, i.e. perfect overlap and 1 means no overlap
+        schema:
+          type:
+          - number
+          - 'null'
+        required: false
+      - in: query
+        name: sort_by
+        description: Key on which result must be sorted.
+        schema:
+          type:
+          - string
+          - 'null'
+          enum:
+          - order_count
+          - skew
+          - last_updated
+        required: false
+      - in: query
+        name: sort_direction
+        description: Sort route responses by `asc` or `desc` on the created_at timestamp
+        schema:
+          type:
+          - string
+          - 'null'
+          enum:
+          - asc
+          - desc
+        required: false
+      - in: query
+        name: geofence_type
+        description: Filter to fetch the specified geofence type.
+        schema:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Point
+          - Polygon
+        required: false
+      - in: query
+        name: has_suggested_places
+        description: Filter to fetch the places which has suggested geofences
+        schema:
+          type:
+          - boolean
+          - 'null'
+        required: false
+      - in: query
+        name: suggestion_type
+        description: 'Filter to fetch places by suggestion type. Comma-separated list of: ''manual'', ''inferred'', ''bounding_box'''
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: aggregate
+        description: Whether to return aggregates, i.e. count of places
+        schema:
+          type:
+          - boolean
+          - 'null'
+        required: false
+      - in: query
+        name: pagination_token
+        description: Identifier used to fetch the next page of data
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: limit
+        description: Maximum number of results to be returned.
+        schema:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 100
+        required: false
+      - in: query
+        name: from_date
+        description: Start date (YYYY-MM-DD) of the time window used as a filter to retrieve places visited on a specific date, regardless of the timezone.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: to_date
+        description: End date (YYYY-MM-DD) of the time window used as a filter to retrieve places visited on a specific date, regardless of the timezone.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: visit_detection_config
+        description: Worker detection config as json encoded string
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlacesResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Get places
+      description: Get places with filters. Response includes the 'name' field for each place if available.
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+    post:
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Create a new Place in system
+      description: Create a new place in hypertrack. The 'name' parameter allows you to provide a human-readable name for the place.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceCreateRequest'
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /places/v1/segments:
+    get:
+      parameters:
+      - in: query
+        name: segment
+        description: Represents the segment used to retrieve the corresponding values
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: prefix
+        description: Represents the prefix to be used when filtering segment values
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPlaceSegmentsResponse'
+              example:
+                segments:
+                - data:name
+                - data:description
+                - data:category
+                truncated: false
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Get Place Segments
+      description: Fetch segments from the place metadata that are associated with all metadata
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /places/v1/{place_handle}:
+    get:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+      tags:
+      - Places
+      summary: Get place by id
+      description: Get place by id/handle. Response includes the 'name' field if available.
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+    patch:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: update_associated_orders
+        description: If true, updates all non-terminal orders associated with this place_handle to reflect the updated place destination.
+        schema:
+          type:
+          - boolean
+          - 'null'
+          default: false
+        required: false
+      - in: query
+        name: update_geometry_using_address
+        description: If true, geocodes the place using the address provided in the request body and updates the geometry with the geocoded coordinates.
+        schema:
+          type:
+          - boolean
+          - 'null'
+          default: false
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Updates a place
+      description: 'Updates a place, send empty array to remove values for an array type parameter, null values will be ignored. eg. {"parkings": []} to clear parkings of a places instead of  {"parkings": null}. The ''name'' parameter can be updated to change the human-readable name of the place.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlacePatchRequest'
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+    delete:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+      tags:
+      - Places
+      summary: Delete a place
+      description: Delete a place
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /places/v1/{place_handle}/history:
+    get:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: pagination_token
+        description: Identifier used to fetch the next page of data
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: limit
+        description: Maximum number of results to return
+        schema:
+          type:
+          - integer
+          - 'null'
+          default: 20
+          minimum: 1
+          maximum: 100
+        required: false
+      - in: query
+        name: field_name
+        description: 'Filter to show only changes related to a specific field. Allowed values: place_handle, name, geofence, metadata, parkings, checkins, timings, closed_on, expected_service_time, locked_from_suggestions'
+        schema:
+          type:
+          - string
+          - 'null'
+          enum:
+          - place_handle
+          - name
+          - geofence
+          - metadata
+          - parkings
+          - checkins
+          - timings
+          - closed_on
+          - expected_service_time
+          - locked_from_suggestions
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceHistoryResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Get place audit history
+      description: Retrieve audit history for a place showing all changes over time with pagination. Use the field_name parameter to filter history to only show changes for a specific field.
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /places/v1/{place_handle}/suggestions/:
+    get:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: suggested_on_from
+        description: Start timestamp (ISO 8601 format) to filter suggestions created on or after this time
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: suggested_on_to
+        description: End timestamp (ISO 8601 format) to filter suggestions created on or before this time
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: pagination_token
+        description: Identifier used to fetch the next page of suggestions
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: limit
+        description: Maximum number of results to be returned.
+        schema:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 100
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionListResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Get suggestions for a place
+      description: Get suggestions for a place
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+    post:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Create a suggestion for a place
+      description: Create a suggestion for a place
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionCreateRequest'
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /places/v1/{place_handle}/inferences/clear:
+    post:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+      tags:
+      - Places
+      summary: Clear the inferences of a place
+      description: Clears the inferences of a place, i.e. inferred geofences, parking, checking locations etc
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /places/v1/{place_handle}/suggestions/{suggestion_id}/apply:
+    post:
+      parameters:
+      - in: path
+        name: place_handle
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: suggestion_id
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Places
+      summary: Apply a suggestion to a place
+      description: Apply a suggestion to a place
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionApplyRequest'
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+components:
+  schemas:
+    SuggestionApplyRequest:
+      type: object
+      properties:
+        applied_by:
+          type: string
+          description: User who applied this suggestion
+      required:
+      - applied_by
+    PlacePatchRequest:
+      type: object
+      properties:
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Human friendly handle of place
+        name:
+          type:
+          - string
+          - 'null'
+          description: Human readable name of the place
+        geometry:
+          description: Location or geofence for this place
+          oneOf:
+          - $ref: '#/components/schemas/PointGeometry'
+          - $ref: '#/components/schemas/PolygonGeometry'
+        radius:
+          type:
+          - integer
+          - 'null'
+          description: Radius of geofence in case geometry is a Point
+        address:
+          type:
+          - string
+          - 'null'
+          description: Address associated with the place
+        timings:
+          type:
+          - array
+          - 'null'
+          description: Expected (open) timings for this place
+          items:
+            $ref: '#/components/schemas/ScheduleItem'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata - any additional data in form of json
+          additionalProperties: {}
+        closed_on:
+          type:
+          - array
+          - 'null'
+          description: Dates when this place will be closed
+          items:
+            type: string
+        expected_service_time:
+          type:
+          - integer
+          - 'null'
+          description: Expected service/work time at this place
+        detect_visits:
+          type:
+          - boolean
+          - 'null'
+          deprecated: true
+          description: 'DEPRECATED: This field is no longer supported and will be removed in a future version. Setting detect_visits to true will result in an error. Visit detection functionality has been discontinued. Use Orders API to detect visits to shift destinations instead.'
+        geofence_id:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+          description: UUID of the associated geofence.
+        address_components:
+          description: 'Structured address components for more accurate geocoding. Fields: country, state, city, postal_code, street.'
+          anyOf:
+          - $ref: '#/components/schemas/AddressComponents'
+        place_type:
+          type:
+          - string
+          - 'null'
+          enum:
+          - shop
+          - house
+          - restaurant
+          - office
+          - warehouse
+          - hospital
+          - mall
+          - university
+          - golf_course
+          - stadium
+          - airport
+          description: 'Type of place, used to restrict the maximum bounding box size during geocoding.
+
+
+            | Type | Max Area | Approx. Size | Description |
+
+            |------|----------|--------------|-------------|
+
+            | shop | 5,000 m² | ~71m x 71m | Small retail shop or store |
+
+            | house | 2,000 m² | ~45m x 45m | Residential house or apartment |
+
+            | restaurant | 5,000 m² | ~71m x 71m | Restaurant, cafe, or eatery |
+
+            | office | 10,000 m² | ~100m x 100m | Office building or coworking space |
+
+            | warehouse | 50,000 m² | ~224m x 224m | Warehouse or distribution center |
+
+            | hospital | 100,000 m² | ~316m x 316m | Hospital or large medical facility |
+
+            | mall | 200,000 m² | ~447m x 447m | Shopping mall or large retail complex |
+
+            | university | 5,000,000 m² | ~2.2km x 2.2km | University or large campus |
+
+            | golf_course | 8,000,000 m² | ~2.8km x 2.8km | Golf course or large sports complex |
+
+            | stadium | 1,000,000 m² | ~1.0km x 1.0km | Stadium or arena with parking |
+
+            | airport | 8,000,000 m² | ~2.8km x 2.8km | Airport or airfield |
+
+
+            If not specified, the default max area is 2,000,000 m² (~1.4km x 1.4km).'
+        parkings:
+          type:
+          - array
+          - 'null'
+          description: Parkings around place
+          items:
+            $ref: '#/components/schemas/PlaceLocation'
+        checkins:
+          type:
+          - array
+          - 'null'
+          description: Checkin or Clockin locations at place
+          items:
+            $ref: '#/components/schemas/PlaceLocation'
+        visit_detection_config:
+          description: Configuration as json to detect the visit based on the key value pair provided with it. This could be worker_handle or some logical grouping attached with worker's metadata.
+          anyOf:
+          - $ref: '#/components/schemas/VisitDetectionConfig'
+        suggestion_used:
+          type:
+          - boolean
+          - 'null'
+          description: If the geofence is applied using inferred geofence or bounding box
+        suggestion_id:
+          type:
+          - string
+          - 'null'
+          description: Id of the suggestion used to update the geofence
+        locked_from_suggestions:
+          type:
+          - boolean
+          - 'null'
+          description: Whether this place is locked from receiving future suggestions. defaults to true if suggestion_used is false
+        suggestions_reviewed_on:
+          type:
+          - string
+          - 'null'
+          description: Timestamp (ISO 8601) when suggestions were last reviewed for this place
+    InferredGeofence:
+      type: object
+      properties:
+        geometry:
+          description: Location
+          allOf:
+          - $ref: '#/components/schemas/PolygonLocationGeometryResponse'
+        source:
+          enum:
+          - customer_provided
+          - ht_generated
+          description: Source which created this location
+        inclusivity:
+          type: string
+          description: More inclusivity means more loosely defined service area
+        skew:
+          type: number
+          description: Skew in inferred geofence, values can be between 0 and 1. 0 mean no skew, i.e. perfect overlap and 1 means no overlap
+        area_ratio:
+          type:
+          - number
+          - 'null'
+          description: Ratio of inferred geometry area to current geofence area (inferred/current)
+        centroid_shift:
+          type:
+          - number
+          - 'null'
+          description: Distance in meters between the centroid of current geofence and inferred geometry
+      required:
+      - geometry
+      - inclusivity
+      - skew
+      - source
+    GetPlaceSegmentsResponse:
+      type: object
+      properties:
+        segments:
+          type: array
+          description: Array of place segments associated with the account
+          items:
+            type: string
+        truncated:
+          type: boolean
+          description: Flag indicating if segments are truncated
+      required:
+      - segments
+      - truncated
+    PlaceResponse:
+      type: object
+      properties:
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Human friendly handle of places
+        name:
+          type:
+          - string
+          - 'null'
+          description: Human readable name of the place
+        geometry:
+          description: Location or geofence for this place
+          oneOf:
+          - $ref: '#/components/schemas/PointGeometry'
+          - $ref: '#/components/schemas/PolygonGeometry'
+        radius:
+          type:
+          - integer
+          - 'null'
+          description: Radius of geofence in case geometry is a Point
+        address:
+          type:
+          - string
+          - 'null'
+          description: Address associated with the place
+        timings:
+          type:
+          - array
+          - 'null'
+          description: Expected (open) timings for this place
+          items:
+            $ref: '#/components/schemas/ScheduleItem'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata - any additional data in form of json
+          additionalProperties: {}
+        closed_on:
+          type:
+          - array
+          - 'null'
+          description: Dates when this place will be closed
+          items:
+            type: string
+        expected_service_time:
+          type:
+          - integer
+          - 'null'
+          description: Expected service/work time at this place
+        detect_visits:
+          type:
+          - boolean
+          - 'null'
+          deprecated: true
+          description: 'DEPRECATED: This field is no longer supported and will be removed in a future version. Setting detect_visits to true will result in an error. Visit detection functionality has been discontinued. Use Orders API to detect visits to shift destinations instead.'
+        geofence_id:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+          description: UUID of the associated geofence.
+        address_components:
+          description: 'Structured address components for more accurate geocoding. Fields: country, state, city, postal_code, street.'
+          anyOf:
+          - $ref: '#/components/schemas/AddressComponents'
+        place_type:
+          type:
+          - string
+          - 'null'
+          enum:
+          - shop
+          - house
+          - restaurant
+          - office
+          - warehouse
+          - hospital
+          - mall
+          - university
+          - golf_course
+          - stadium
+          - airport
+          description: 'Type of place, used to restrict the maximum bounding box size during geocoding.
+
+
+            | Type | Max Area | Approx. Size | Description |
+
+            |------|----------|--------------|-------------|
+
+            | shop | 5,000 m² | ~71m x 71m | Small retail shop or store |
+
+            | house | 2,000 m² | ~45m x 45m | Residential house or apartment |
+
+            | restaurant | 5,000 m² | ~71m x 71m | Restaurant, cafe, or eatery |
+
+            | office | 10,000 m² | ~100m x 100m | Office building or coworking space |
+
+            | warehouse | 50,000 m² | ~224m x 224m | Warehouse or distribution center |
+
+            | hospital | 100,000 m² | ~316m x 316m | Hospital or large medical facility |
+
+            | mall | 200,000 m² | ~447m x 447m | Shopping mall or large retail complex |
+
+            | university | 5,000,000 m² | ~2.2km x 2.2km | University or large campus |
+
+            | golf_course | 8,000,000 m² | ~2.8km x 2.8km | Golf course or large sports complex |
+
+            | stadium | 1,000,000 m² | ~1.0km x 1.0km | Stadium or arena with parking |
+
+            | airport | 8,000,000 m² | ~2.8km x 2.8km | Airport or airfield |
+
+
+            If not specified, the default max area is 2,000,000 m² (~1.4km x 1.4km).'
+        place_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Id of place
+        last_updated:
+          type:
+          - string
+          - 'null'
+          description: Time when this place was last updated
+        order_count:
+          type:
+          - integer
+          - 'null'
+          description: Order Count for this place
+        inferred_geofences:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/InferredGeofence'
+        inferred_geofences_skew:
+          type:
+          - number
+          - 'null'
+          description: Skew in inferred geofence, values can be between 0 and 1. 0 mean no skew, i.e. perfect overlap and 1 means no overlap
+        visit_detection_config:
+          description: Configuration as json to detect the visit based on the key value pair provided with it. This could be worker_handle or some logical grouping attached with worker's metadata.
+          anyOf:
+          - $ref: '#/components/schemas/VisitDetectionConfig'
+        inferred_geofence:
+          description: Inferred geofence as per the on ground activity on places
+          anyOf:
+          - $ref: '#/components/schemas/InferredGeofence'
+        bounding_box:
+          description: Bounding box for the location if the geometry of the place is a point
+          anyOf:
+          - $ref: '#/components/schemas/BoundingBox'
+        created_by:
+          description: Source details of who created this place
+          anyOf:
+          - $ref: '#/components/schemas/Source'
+        updated_by:
+          description: Source details of who last updated this place
+          anyOf:
+          - $ref: '#/components/schemas/Source'
+        locked_from_suggestions:
+          type:
+          - boolean
+          - 'null'
+          description: Whether this place is locked from receiving future suggestions
+        suggestion_applied:
+          type:
+          - boolean
+          - 'null'
+          description: Whether a suggestion was applied to this place
+        suggestion_applied_on:
+          type:
+          - string
+          - 'null'
+          description: Timestamp when a suggestion was applied to this place
+        has_pending_suggestion:
+          type:
+          - boolean
+          - 'null'
+          description: Whether this place has a pending suggestion
+        suggestion_not_applied_reason:
+          type:
+          - string
+          - 'null'
+          description: Reason why suggestion was not applied, if applicable
+        suggestions_reviewed_on:
+          type:
+          - string
+          - 'null'
+          description: Timestamp when suggestions were last reviewed for this place
+        parkings:
+          type:
+          - array
+          - 'null'
+          description: Parkings around place
+          items:
+            $ref: '#/components/schemas/PlaceLocationScore'
+        checkins:
+          type:
+          - array
+          - 'null'
+          description: Checkin or Clockin locations at place
+          items:
+            $ref: '#/components/schemas/PlaceLocationScore'
+        service_areas:
+          type:
+          - array
+          - 'null'
+          description: Service area where work usually happens in this place
+          items:
+            $ref: '#/components/schemas/Area'
+        completions:
+          type:
+          - array
+          - 'null'
+          description: locations where orders are marked complete
+          items:
+            $ref: '#/components/schemas/PlaceLocationScore'
+        suggestions:
+          type:
+          - array
+          - 'null'
+          description: Structured suggestions for this place
+          items:
+            $ref: '#/components/schemas/SuggestionResponse'
+      required:
+      - geometry
+    PointGeometry:
+      type: object
+      properties:
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude]
+          items:
+            type: number
+        type:
+          type: string
+          default: Point
+          enum:
+          - Point
+          description: Geometry type
+      required:
+      - coordinates
+    PolygonGeometry:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Polygon
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [[[longitude, latitude], [lon, lat]...]]
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+      required:
+      - coordinates
+      - type
+    ScheduleItem:
+      type: object
+      properties:
+        day_of_week:
+          enum:
+          - MONDAY
+          - TUESDAY
+          - WEDNESDAY
+          - THURSDAY
+          - FRIDAY
+          - SATURDAY
+          - SUNDAY
+          description: Day of week
+        start_time:
+          type: string
+          description: Start time (opening time) for the day
+        end_time:
+          type: string
+          description: end_time (closing time) for the day
+      required:
+      - day_of_week
+      - end_time
+      - start_time
+    SuggestionCreateRequest:
+      type: object
+      properties:
+        geometry:
+          description: Suggested location or geofence for this place
+          oneOf:
+          - $ref: '#/components/schemas/PointGeometry'
+          - $ref: '#/components/schemas/PolygonGeometry'
+        radius:
+          type:
+          - integer
+          - 'null'
+          description: Radius in meters for point geometry suggestions
+        suggested_by:
+          type:
+          - string
+          - 'null'
+          description: User who suggested this geofence
+        order_handle:
+          type:
+          - string
+          - 'null'
+          description: Order handle associated with this suggestion
+      required:
+      - geometry
+    VisitDetectionConfig:
+      type: object
+      properties:
+        worker_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique customer provided identifier for a worker
+        metadata_filter:
+          type:
+          - object
+          - 'null'
+          description: Metadata to detect the visit based on the key value pair provided with it.
+          additionalProperties: {}
+    Source:
+      type: object
+      properties:
+        source:
+          type:
+          - string
+          - 'null'
+          description: Source of the request
+        timestamp:
+          type:
+          - string
+          - 'null'
+          description: Time when request was made
+        ip-address:
+          type:
+          - string
+          - 'null'
+          description: IP address of source
+        device_id:
+          type:
+          - string
+          - 'null'
+          description: Id of the device that made the request
+        driver_handle:
+          type:
+          - string
+          - 'null'
+          description: Id of the driver who made the request
+        user_id:
+          type:
+          - string
+          - 'null'
+          description: Id of the user who made the request
+        email:
+          type:
+          - string
+          - 'null'
+          description: Email of the user who made the request
+    PlaceLocationScore:
+      type: object
+      properties:
+        geometry:
+          description: Location
+          allOf:
+          - $ref: '#/components/schemas/PointLocationGeometryResponse'
+        score:
+          type: number
+          description: Score indicating importance of this location
+        source:
+          enum:
+          - customer_provided
+          - ht_generated
+          description: Source which created this location
+      required:
+      - geometry
+      - score
+      - source
+    BoundingBox:
+      type: object
+      properties:
+        geometry:
+          description: Location
+          allOf:
+          - $ref: '#/components/schemas/PolygonLocationGeometryResponse'
+        source:
+          enum:
+          - customer_provided
+          - ht_generated
+          description: Source which created this location
+        skew:
+          type: number
+          description: Skew in inferred geofence, values can be between 0 and 1. 0 mean no skew, i.e. perfect overlap and 1 means no overlap
+        area_ratio:
+          type:
+          - number
+          - 'null'
+          description: Ratio of bounding box area to current geofence area (bounding_box/current)
+        centroid_shift:
+          type:
+          - number
+          - 'null'
+          description: Distance in meters between the centroid of current geofence and bounding box
+      required:
+      - geometry
+      - skew
+      - source
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
+    FieldChange:
+      type: object
+      properties:
+        old:
+          description: Old value of the field
+        new:
+          description: New value of the field
+    Area:
+      type: object
+      properties:
+        geometry:
+          description: Location
+          allOf:
+          - $ref: '#/components/schemas/PolygonLocationGeometryResponse'
+        source:
+          enum:
+          - customer_provided
+          - ht_generated
+          description: Source which created this location
+      required:
+      - geometry
+      - source
+    PlaceLocation:
+      type: object
+      properties:
+        geometry:
+          description: Location
+          allOf:
+          - $ref: '#/components/schemas/PointLocationGeometryResponse'
+      required:
+      - geometry
+    SuggestionResponse:
+      type: object
+      properties:
+        suggestion_id:
+          type: string
+          description: Unique identifier for the suggestion
+        geometry:
+          description: Suggested location or geofence for this place
+          oneOf:
+          - $ref: '#/components/schemas/PointGeometry'
+          - $ref: '#/components/schemas/PolygonGeometry'
+        radius:
+          type:
+          - integer
+          - 'null'
+          description: Radius in meters for point geometry suggestions
+        hex_id:
+          type: string
+          description: Hex ID associated with this suggestion
+        applied_by:
+          type:
+          - string
+          - 'null'
+          description: User who applied this suggestion
+        applied_on:
+          type:
+          - string
+          - 'null'
+          description: Time when this suggestion was applied
+        suggested_by:
+          type:
+          - string
+          - 'null'
+          description: User who suggested this geofence
+        suggested_on:
+          type: string
+          description: Time when this suggestion was made
+        order_handle:
+          type:
+          - string
+          - 'null'
+          description: Order handle associated with this suggestion
+        source:
+          default: customer_provided
+          enum:
+          - ht_generated
+          - customer_provided
+          description: Source which created this suggestion
+        type:
+          type: string
+          default: manual
+          description: Type of suggestion (manual, inferred, bounding_box)
+        skew:
+          type:
+          - number
+          - 'null'
+          description: Skew between current geofence and suggestion, values can be between 0 and 1. 0 means no skew (perfect overlap) and 1 means no overlap
+        area_ratio:
+          type:
+          - number
+          - 'null'
+          description: Ratio of suggested geometry area to current geofence area (suggested/current)
+        centroid_shift:
+          type:
+          - number
+          - 'null'
+          description: Distance in meters between the centroid of current geofence and suggestion
+        inclusivity:
+          type:
+          - string
+          - 'null'
+          description: More inclusivity means more loosely defined service area
+      required:
+      - geometry
+      - hex_id
+      - suggested_on
+      - suggestion_id
+    PlaceHistoryResponse:
+      type: object
+      properties:
+        place_id:
+          type: string
+          format: uuid
+          description: ID of the place
+        place_handle:
+          type: string
+          description: Handle of the place
+        history:
+          type: array
+          description: List of audit history entries
+          items:
+            $ref: '#/components/schemas/PlaceHistoryEntry'
+        pagination_token:
+          type:
+          - string
+          - 'null'
+          description: Identifier used to fetch the next page
+      required:
+      - history
+      - place_handle
+      - place_id
+    PlaceHistoryEntry:
+      type: object
+      properties:
+        audit_id:
+          type: string
+          format: uuid
+          description: Unique identifier for this audit entry
+        changed_at:
+          type: string
+          description: Timestamp when the change occurred
+        changed_by:
+          description: Source information of who made the change
+          anyOf:
+          - $ref: '#/components/schemas/Source'
+        operation:
+          type: string
+          description: 'Type of operation: INSERT, UPDATE, DELETE'
+        changes:
+          type: object
+          description: Field-level changes with old and new values
+          additionalProperties:
+            $ref: '#/components/schemas/FieldChange'
+      required:
+      - audit_id
+      - changed_at
+      - changes
+      - operation
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
+    PlaceListResponse:
+      type: object
+      properties:
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Human friendly handle of places
+        name:
+          type:
+          - string
+          - 'null'
+          description: Human readable name of the place
+        geometry:
+          description: Location or geofence for this place
+          oneOf:
+          - $ref: '#/components/schemas/PointGeometry'
+          - $ref: '#/components/schemas/PolygonGeometry'
+        radius:
+          type:
+          - integer
+          - 'null'
+          description: Radius of geofence in case geometry is a Point
+        address:
+          type:
+          - string
+          - 'null'
+          description: Address associated with the place
+        timings:
+          type:
+          - array
+          - 'null'
+          description: Expected (open) timings for this place
+          items:
+            $ref: '#/components/schemas/ScheduleItem'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata - any additional data in form of json
+          additionalProperties: {}
+        closed_on:
+          type:
+          - array
+          - 'null'
+          description: Dates when this place will be closed
+          items:
+            type: string
+        expected_service_time:
+          type:
+          - integer
+          - 'null'
+          description: Expected service/work time at this place
+        detect_visits:
+          type:
+          - boolean
+          - 'null'
+          deprecated: true
+          description: 'DEPRECATED: This field is no longer supported and will be removed in a future version. Setting detect_visits to true will result in an error. Visit detection functionality has been discontinued. Use Orders API to detect visits to shift destinations instead.'
+        geofence_id:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+          description: UUID of the associated geofence.
+        address_components:
+          description: 'Structured address components for more accurate geocoding. Fields: country, state, city, postal_code, street.'
+          anyOf:
+          - $ref: '#/components/schemas/AddressComponents'
+        place_type:
+          type:
+          - string
+          - 'null'
+          enum:
+          - shop
+          - house
+          - restaurant
+          - office
+          - warehouse
+          - hospital
+          - mall
+          - university
+          - golf_course
+          - stadium
+          - airport
+          description: 'Type of place, used to restrict the maximum bounding box size during geocoding.
+
+
+            | Type | Max Area | Approx. Size | Description |
+
+            |------|----------|--------------|-------------|
+
+            | shop | 5,000 m² | ~71m x 71m | Small retail shop or store |
+
+            | house | 2,000 m² | ~45m x 45m | Residential house or apartment |
+
+            | restaurant | 5,000 m² | ~71m x 71m | Restaurant, cafe, or eatery |
+
+            | office | 10,000 m² | ~100m x 100m | Office building or coworking space |
+
+            | warehouse | 50,000 m² | ~224m x 224m | Warehouse or distribution center |
+
+            | hospital | 100,000 m² | ~316m x 316m | Hospital or large medical facility |
+
+            | mall | 200,000 m² | ~447m x 447m | Shopping mall or large retail complex |
+
+            | university | 5,000,000 m² | ~2.2km x 2.2km | University or large campus |
+
+            | golf_course | 8,000,000 m² | ~2.8km x 2.8km | Golf course or large sports complex |
+
+            | stadium | 1,000,000 m² | ~1.0km x 1.0km | Stadium or arena with parking |
+
+            | airport | 8,000,000 m² | ~2.8km x 2.8km | Airport or airfield |
+
+
+            If not specified, the default max area is 2,000,000 m² (~1.4km x 1.4km).'
+        place_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Id of place
+        last_updated:
+          type:
+          - string
+          - 'null'
+          description: Time when this place was last updated
+        order_count:
+          type:
+          - integer
+          - 'null'
+          description: Order Count for this place
+        inferred_geofences:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/InferredGeofence'
+        inferred_geofences_skew:
+          type:
+          - number
+          - 'null'
+          description: Skew in inferred geofence, values can be between 0 and 1. 0 mean no skew, i.e. perfect overlap and 1 means no overlap
+        visit_detection_config:
+          description: Configuration as json to detect the visit based on the key value pair provided with it. This could be worker_handle or some logical grouping attached with worker's metadata.
+          anyOf:
+          - $ref: '#/components/schemas/VisitDetectionConfig'
+        inferred_geofence:
+          description: Inferred geofence as per the on ground activity on places
+          anyOf:
+          - $ref: '#/components/schemas/InferredGeofence'
+        bounding_box:
+          description: Bounding box for the location if the geometry of the place is a point
+          anyOf:
+          - $ref: '#/components/schemas/BoundingBox'
+        created_by:
+          description: Source details of who created this place
+          anyOf:
+          - $ref: '#/components/schemas/Source'
+        updated_by:
+          description: Source details of who last updated this place
+          anyOf:
+          - $ref: '#/components/schemas/Source'
+        locked_from_suggestions:
+          type:
+          - boolean
+          - 'null'
+          description: Whether this place is locked from receiving future suggestions
+        suggestion_applied:
+          type:
+          - boolean
+          - 'null'
+          description: Whether a suggestion was applied to this place
+        suggestion_applied_on:
+          type:
+          - string
+          - 'null'
+          description: Timestamp when a suggestion was applied to this place
+        has_pending_suggestion:
+          type:
+          - boolean
+          - 'null'
+          description: Whether this place has a pending suggestion
+        suggestion_not_applied_reason:
+          type:
+          - string
+          - 'null'
+          description: Reason why suggestion was not applied, if applicable
+        suggestions_reviewed_on:
+          type:
+          - string
+          - 'null'
+          description: Timestamp when suggestions were last reviewed for this place
+      required:
+      - geometry
+    PlacesResponse:
+      type: object
+      properties:
+        aggregate:
+          description: Places aggregate results, if aggregate flag is passed in request
+          anyOf:
+          - $ref: '#/components/schemas/PlacesAggregate'
+        places:
+          type:
+          - array
+          - 'null'
+          description: List of places
+          items:
+            $ref: '#/components/schemas/PlaceListResponse'
+        pagination_token:
+          type:
+          - string
+          - 'null'
+          description: Identifier used to fetch the next page
+    PlaceCreateRequest:
+      type: object
+      properties:
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Human friendly handle of places
+        name:
+          type:
+          - string
+          - 'null'
+          description: Human readable name of the place
+        geometry:
+          description: Location or geofence for this place, if not provided, address will be used to infer an estimate square polygon geometry representing the address, the estimate can sometimes be not correct and must be reviewed and updated using the patch places api if necessary
+          oneOf:
+          - $ref: '#/components/schemas/PointGeometry'
+          - $ref: '#/components/schemas/PolygonGeometry'
+        radius:
+          type:
+          - integer
+          - 'null'
+          description: Radius of geofence in case geometry is a Point
+        address:
+          type:
+          - string
+          - 'null'
+          description: Address associated with the place
+        timings:
+          type:
+          - array
+          - 'null'
+          description: Expected (open) timings for this place
+          items:
+            $ref: '#/components/schemas/ScheduleItem'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata - any additional data in form of json
+          additionalProperties: {}
+        closed_on:
+          type:
+          - array
+          - 'null'
+          description: Dates when this place will be closed
+          items:
+            type: string
+        expected_service_time:
+          type:
+          - integer
+          - 'null'
+          description: Expected service/work time at this place
+        detect_visits:
+          type:
+          - boolean
+          - 'null'
+          deprecated: true
+          description: 'DEPRECATED: This field is no longer supported and will be removed in a future version. Setting detect_visits to true will result in an error. Visit detection functionality has been discontinued. Use Orders API to detect visits to shift destinations instead.'
+        geofence_id:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+          description: UUID of the associated geofence.
+        address_components:
+          description: 'Structured address components for more accurate geocoding. Fields: country, state, city, postal_code, street.'
+          anyOf:
+          - $ref: '#/components/schemas/AddressComponents'
+        place_type:
+          type:
+          - string
+          - 'null'
+          enum:
+          - shop
+          - house
+          - restaurant
+          - office
+          - warehouse
+          - hospital
+          - mall
+          - university
+          - golf_course
+          - stadium
+          - airport
+          description: 'Type of place, used to restrict the maximum bounding box size during geocoding.
+
+
+            | Type | Max Area | Approx. Size | Description |
+
+            |------|----------|--------------|-------------|
+
+            | shop | 5,000 m² | ~71m x 71m | Small retail shop or store |
+
+            | house | 2,000 m² | ~45m x 45m | Residential house or apartment |
+
+            | restaurant | 5,000 m² | ~71m x 71m | Restaurant, cafe, or eatery |
+
+            | office | 10,000 m² | ~100m x 100m | Office building or coworking space |
+
+            | warehouse | 50,000 m² | ~224m x 224m | Warehouse or distribution center |
+
+            | hospital | 100,000 m² | ~316m x 316m | Hospital or large medical facility |
+
+            | mall | 200,000 m² | ~447m x 447m | Shopping mall or large retail complex |
+
+            | university | 5,000,000 m² | ~2.2km x 2.2km | University or large campus |
+
+            | golf_course | 8,000,000 m² | ~2.8km x 2.8km | Golf course or large sports complex |
+
+            | stadium | 1,000,000 m² | ~1.0km x 1.0km | Stadium or arena with parking |
+
+            | airport | 8,000,000 m² | ~2.8km x 2.8km | Airport or airfield |
+
+
+            If not specified, the default max area is 2,000,000 m² (~1.4km x 1.4km).'
+        parkings:
+          type:
+          - array
+          - 'null'
+          description: Parkings around place
+          items:
+            $ref: '#/components/schemas/PlaceLocation'
+        checkins:
+          type:
+          - array
+          - 'null'
+          description: Checkin or Clockin locations at place
+          items:
+            $ref: '#/components/schemas/PlaceLocation'
+        visit_detection_config:
+          description: Configuration as json to detect the visit based on the key value pair provided with it. This could be worker_handle or some logical grouping attached with worker's metadata.
+          anyOf:
+          - $ref: '#/components/schemas/VisitDetectionConfig'
+        locked_from_suggestions:
+          type:
+          - boolean
+          - 'null'
+          default: false
+          description: Whether this place is locked from receiving future suggestions
+    PlacesAggregate:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total number of places found
+        count_circular_places:
+          type: integer
+          description: Number of places with circular geofence
+        count_polygon_places:
+          type: integer
+          description: Number of places with polygon geofence
+      required:
+      - count
+      - count_circular_places
+      - count_polygon_places
+    AddressComponents:
+      type: object
+      properties:
+        country:
+          type:
+          - string
+          - 'null'
+          description: Country name or code
+        state:
+          type:
+          - string
+          - 'null'
+          description: State or province
+        city:
+          type:
+          - string
+          - 'null'
+          description: City or town
+        postal_code:
+          type:
+          - string
+          - 'null'
+          description: Postal/ZIP code
+        street:
+          type:
+          - string
+          - 'null'
+          description: Street address
+    PointLocationGeometryResponse:
+      type: object
+      properties:
+        type:
+          enum:
+          - Point
+          description: Point Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude].
+          items:
+            type: number
+      required:
+      - coordinates
+      - type
+    SuggestionListResponse:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          description: List of suggestions
+          items:
+            $ref: '#/components/schemas/SuggestionResponse'
+        pagination_token:
+          type:
+          - string
+          - 'null'
+          description: Token to fetch the next page of suggestions
+      required:
+      - suggestions
+    PolygonLocationGeometryResponse:
+      type: object
+      properties:
+        type:
+          enum:
+          - Polygon
+          description: Polygon Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as list of list of [longitude, latitude].
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+      required:
+      - coordinates
+      - type
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    TokenAuth:
+      type: http
+      scheme: bearer
+    BearerAuth:
+      type: http
+      scheme: bearer

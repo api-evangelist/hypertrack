@@ -1,0 +1,1290 @@
+openapi: 3.2.0
+info:
+  title: HyperTrack Visits API
+  version: '1.0'
+  description: HyperTrack API Reference — Orders, Workers, Places, Routes, and more.
+  contact:
+    name: HyperTrack support
+    url: https://hypertrack.com/contact
+    email: help@hypertrack.com
+servers:
+- url: https://v3.api.hypertrack.com
+tags:
+- name: Visits
+paths:
+  /visits/:
+    get:
+      parameters:
+      - in: query
+        name: visit_id
+        description: Unique identifier representing each visit.
+        schema:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        required: false
+      - in: query
+        name: geofence_id
+        description: Geofence Id associated with visit
+        schema:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        required: false
+      - in: query
+        name: driver_handle
+        description: String representing the handle for the driver to fetch the required visits.
+        schema:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+        required: false
+      - in: query
+        name: worker_handle
+        description: String representing the handle for the worker to fetch the required visits.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: device_id
+        description: Device Id associated with visit
+        schema:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        required: false
+      - in: query
+        name: order_handle
+        description: String representing the handle for the order to fetch the required visits.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: place_handle
+        description: String representing the handle for the place to fetch the required visits.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: pagination_token
+        description: Identifier used to fetch the next page of data
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: visited_at_from
+        description: ISO 8601 datetime indicating the visit's start time for filtering
+        schema:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        required: false
+      - in: query
+        name: visited_at_to
+        description: ISO 8601 datetime indicating the visit's end time for filtering
+        schema:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        required: false
+      - in: query
+        name: metadata_filter
+        description: JSON encoded string metadata associated with the visits
+        schema:
+          type:
+          - string
+          - 'null'
+          format: Encoded JSON
+        required: false
+      - in: query
+        name: region_filter
+        description: JSON encoded string region associated with the visits
+        schema:
+          type:
+          - string
+          - 'null'
+          format: Encoded JSON
+        required: false
+      - in: query
+        name: search_term
+        description: String representing the search term. Search will be done on order_handle, ops_group_handle, driver_handle and metadata fields.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: aggregate
+        description: Flag set to retrieve aggregated data over the provided time range
+        schema:
+          type: boolean
+          default: false
+        required: false
+      - in: query
+        name: arrived_at_date_without_tz_from
+        description: Start date (YYYY-MM-DD) of the time window used as a filter to retrieve orders scheduled on a specific date, regardless of the timezone.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: arrived_at_date_without_tz_to
+        description: End date (YYYY-MM-DD) of the time window used as a filter to retrieve orders scheduled on a specific date, regardless of the timezone.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: limit
+        description: Number of Orders to be sent in response
+        schema:
+          type:
+          - integer
+          - 'null'
+          default: 100
+        required: false
+      - in: query
+        name: ops_group_handles
+        description: List of ops group handles as strings used for fetching associated visits
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: attachments
+        description: List of attachments in event
+        schema:
+          type:
+          - array
+          - 'null'
+          minItems: 1
+          maxItems: 10
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ImageAttachment'
+            - $ref: '#/components/schemas/NoteAttachment'
+            - $ref: '#/components/schemas/SignatureAttachment'
+        required: false
+        explode: true
+        style: form
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetVisitsResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Visits
+      summary: Get Visits
+      description: Retrieves Visits associated with orders. This API provides the ability to filter for visits based on a set of query parameters.
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /visits/{visit_id}:
+    get:
+      parameters:
+      - in: path
+        name: visit_id
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Visits
+      summary: Get Visit by id
+      description: Retrieve Visit associated with visit_id. This API provides the ability to fetch visit based on visit_id
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+    patch:
+      parameters:
+      - in: path
+        name: visit_id
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchVisitResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Visits
+      summary: Patch Visits
+      description: Update visit.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchVisitRequest'
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /visits/{visit_id}/attachments:
+    post:
+      parameters:
+      - in: path
+        name: visit_id
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddAttachmentResponse'
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Visits
+      summary: Add Attachment to Visit
+      description: Add an attachment to a visit.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAttachmentRequest'
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /visits/{visit_id}/attachments/{attachment_id}:
+    delete:
+      parameters:
+      - in: path
+        name: visit_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: attachment_id
+        schema:
+          type: string
+        required: true
+      responses:
+        '204':
+          description: Attachment deleted successfully
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Visits
+      summary: Delete Attachment
+      description: Delete an attachment associated with a specific visit by ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAttachmentRequest'
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+components:
+  schemas:
+    NoteAttachment1:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - note
+          description: Type of attachment
+        data:
+          type: string
+          description: Text for the note
+        attachment_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - type
+    VisitOrderAggregate:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of orders generated in the given time range
+        tracking_rate:
+          type: number
+          description: Tracking rate of the driver during the lifespan of the orders
+        visits:
+          description: Aggregate information for visits
+          allOf:
+          - $ref: '#/components/schemas/VisitsAggregate'
+        workers:
+          description: Aggregate information for workers
+          allOf:
+          - $ref: '#/components/schemas/WorkersAggregate'
+      required:
+      - count
+    ServiceStatsInfo1:
+      type: object
+      properties:
+        duration:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the visit
+        distance:
+          type:
+          - integer
+          - 'null'
+          description: Distance to be tracked for the visit
+        outage_duration:
+          type:
+          - integer
+          - 'null'
+          description: Outage duration for the visit
+        outage:
+          type:
+          - object
+          - 'null'
+          description: Outage summary for the visit
+          additionalProperties: {}
+    PatchVisitRequest:
+      type: object
+      properties:
+        visit_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Unique identifier representing each visit.
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Updated timestamp of the visit
+        geofence_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: GeofenceId associated with the visit
+        driver_handle:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+          description: Driver handle for this visit
+        worker_handle:
+          type:
+          - string
+          - 'null'
+          description: Worker handle for this visit
+        worker_name:
+          type:
+          - string
+          - 'null'
+          description: Worker name for this visit
+        worker_profile:
+          type:
+          - object
+          - 'null'
+          description: Worker profile associated with visit.
+          additionalProperties: {}
+        order_handle:
+          type:
+          - string
+          - 'null'
+          description: Order handle for this visit
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Place handle for this visit
+        arrival:
+          description: Arrival info of this visit
+          anyOf:
+          - $ref: '#/components/schemas/VisitLocationInfo'
+        exit:
+          description: Exit info of this visit
+          anyOf:
+          - $ref: '#/components/schemas/VisitLocationInfo'
+        enroute:
+          description: Stats for the given visit for enroute
+          anyOf:
+          - $ref: '#/components/schemas/EnrouteStatsInfo1'
+        service:
+          description: Stats for given visit during service
+          anyOf:
+          - $ref: '#/components/schemas/ServiceStatsInfo1'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata associated with visit.
+          additionalProperties: {}
+        geofence_type:
+          type:
+          - string
+          - 'null'
+          description: Geofence type for this visit
+        region:
+          type:
+          - object
+          - 'null'
+          description: Region associated with visit.
+          additionalProperties: {}
+        system_generated_order_handle:
+          type:
+          - boolean
+          - 'null'
+          description: Boolean to filter out orders where order handle was automatically generated by HT system
+    VisitsAggregate:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of geotags generated in the given time range
+    SignatureAttachment1:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - signature
+          description: Type of attachment
+        url:
+          type: string
+          description: Signature image link
+        attachment_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - type
+      - url
+    VisitOrder:
+      type: object
+      properties:
+        order_handle:
+          type: string
+          description: String representing the order
+        service:
+          description: Visit Order's details while in service
+          allOf:
+          - $ref: '#/components/schemas/ServiceStatsInfo'
+        enroute:
+          description: Visit Order's details during enroute
+          allOf:
+          - $ref: '#/components/schemas/EnrouteStatsInfo'
+        driver_handle:
+          type: string
+          deprecated: true
+          description: String representing the handle for the driver
+        tracking_rate:
+          type: number
+          description: Tracking rate during the lifespan of the order
+        worker_handle:
+          type: string
+          description: String representing the handle for the worker
+        system_generated_order_handle:
+          type:
+          - boolean
+          - 'null'
+          description: Boolean to filter out orders where order handle was automatically generated by HT system
+        ops_group_handle:
+          type: string
+          description: String representing the ops group handle
+        visits:
+          type: array
+          description: List of visits associated with order
+          items:
+            $ref: '#/components/schemas/Visit'
+      required:
+      - enroute
+      - order_handle
+      - service
+    EnrouteStatsInfo:
+      type: object
+      properties:
+        duration:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the order
+        distance:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the order
+        idle_time:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the order
+        outage_duration:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the order
+        outage_distance:
+          type:
+          - integer
+          - 'null'
+          description: Outage distance for the visit
+        outage:
+          type:
+          - object
+          - 'null'
+          description: Duration to be tracked for the order
+          additionalProperties: {}
+        tracking_rate:
+          type:
+          - number
+          - 'null'
+          description: Driver tracking rate during the lifespan of the visit
+    AnyLocationGeometry:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Point
+          - Polygon
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude] or [[[longitude, latitude],..]]
+          items: {}
+      required:
+      - coordinates
+      - type
+    DeleteAttachmentRequest:
+      type: object
+      properties: {}
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
+    LocationGeometry:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Point
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude]
+          items:
+            type: number
+      required:
+      - coordinates
+      - type
+    WorkersAggregate:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total number of drivers
+    SignatureAttachment:
+      type: object
+      properties:
+        type:
+          enum:
+          - signature
+          description: Type of attachment
+        url:
+          type: string
+          description: Signature image link
+      required:
+      - type
+      - url
+    VisitGeometryModel:
+      type: object
+      properties:
+        radius:
+          type: integer
+          description: Radius of visit's location in case of point type
+        geometry:
+          description: Location for the visit
+          allOf:
+          - $ref: '#/components/schemas/AnyLocationGeometry'
+      required:
+      - geometry
+      - radius
+    EnrouteStatsInfo1:
+      type: object
+      properties:
+        duration:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the visit
+        distance:
+          type:
+          - integer
+          - 'null'
+          description: Distance to be tracked for the visit
+        idle_time:
+          type:
+          - integer
+          - 'null'
+          description: Idle time to be tracked for the visit
+        outage_duration:
+          type:
+          - integer
+          - 'null'
+          description: Outage duration for the visit
+        outage_distance:
+          type:
+          - integer
+          - 'null'
+          description: Outage distance for the visit
+        outage:
+          type:
+          - object
+          - 'null'
+          description: Outage summary for the visit
+          additionalProperties: {}
+    VisitLocationInfo:
+      type: object
+      properties:
+        location:
+          description: Location for this visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationGeometry'
+        recorded_at:
+          type: string
+          format: date-time
+          description: Recorded timestamp of visit
+        location_accuracy:
+          type:
+          - number
+          - 'null'
+          description: Location accuracy in meters
+      required:
+      - recorded_at
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
+    ImageAttachment1:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - image
+          description: Type of attachment
+        url:
+          type: string
+          description: Image link
+        caption:
+          type:
+          - string
+          - 'null'
+          description: Caption for the image
+        attachment_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - type
+      - url
+    Visit:
+      type: object
+      properties:
+        visit_id:
+          type: string
+          format: uuid
+          description: Unique identifier representing each visit.
+        created_at:
+          type: string
+          description: Creation timestamp of visit
+        updated_at:
+          type:
+          - string
+          - 'null'
+          description: Last Updated timestamp of visit
+        geofence_id:
+          type: string
+          format: uuid
+          description: GeofenceId associated with visit
+        driver_handle:
+          type: string
+          deprecated: true
+          description: Driver handle for this visit
+        worker_handle:
+          type: string
+          description: Worker handle for this visit
+        worker_name:
+          type:
+          - string
+          - 'null'
+          description: Worker name for this visit
+        worker_profile:
+          type:
+          - object
+          - 'null'
+          description: Worker profile associated with visit.
+          additionalProperties: {}
+        device_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Device id associated with visit
+        order_handle:
+          type: string
+          description: Order handle for this visit
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Place handle for this visit
+        ops_group_handle:
+          type: string
+          description: Ops Group handle for this visit
+        arrival:
+          description: Arrival information of visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+        exit:
+          description: Exited information of visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+        enroute:
+          description: ''
+          anyOf:
+          - $ref: '#/components/schemas/EnrouteStatsInfo'
+        service:
+          description: ''
+          anyOf:
+          - $ref: '#/components/schemas/ServiceStatsInfo'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata associated with this visit.
+          additionalProperties: {}
+        geofence_metadata:
+          type:
+          - object
+          - 'null'
+          description: Geofence Metadata associated with the visit.
+          additionalProperties: {}
+        tracking_rate:
+          type: number
+          description: Driver tracking rate during the lifespan of the order
+        system_generated_order_handle:
+          type:
+          - boolean
+          - 'null'
+          description: Boolean to filter out orders where order handle was automatically generated by HT system
+        visit_geometry:
+          description: Geometry of the visit
+          anyOf:
+          - $ref: '#/components/schemas/VisitGeometryModel'
+        geofence_address:
+          type:
+          - string
+          - 'null'
+          description: Geofence address for this visit
+        timezone:
+          type:
+          - string
+          - 'null'
+          description: Timezone associated with this visit
+        attachments:
+          type:
+          - array
+          - 'null'
+          description: Attachments associated with this geotag
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ImageAttachment1'
+            - $ref: '#/components/schemas/NoteAttachment1'
+            - $ref: '#/components/schemas/SignatureAttachment1'
+      required:
+      - created_at
+      - geofence_id
+      - ops_group_handle
+      - order_handle
+      - visit_id
+    ImageAttachment:
+      type: object
+      properties:
+        type:
+          enum:
+          - image
+          description: Type of attachment
+        url:
+          type: string
+          description: Image link
+        caption:
+          type:
+          - string
+          - 'null'
+          description: Caption for the image
+      required:
+      - type
+      - url
+    GetVisitsResponse:
+      type: object
+      properties:
+        orders:
+          type:
+          - array
+          - 'null'
+          description: Array of Orders fulfilled in the given time range
+          items:
+            $ref: '#/components/schemas/VisitOrder'
+        pagination_token:
+          type:
+          - string
+          - 'null'
+          description: Identifier used to fetch the next page of data
+        aggregate:
+          description: Combined aggregate metrics for visits and orders in the given time range
+          anyOf:
+          - $ref: '#/components/schemas/VisitOrderAggregate'
+    LocationInfo:
+      type: object
+      properties:
+        location:
+          description: Location for the visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationGeometry'
+        recorded_at:
+          type: string
+          description: Recorded timestamp
+        location_accuracy:
+          type:
+          - number
+          - 'null'
+          description: Location accuracy in meters
+      required:
+      - recorded_at
+    PatchVisitResponse:
+      type: object
+      properties:
+        visit_id:
+          type: string
+          format: uuid
+          description: Unique identifier representing each visit.
+        created_at:
+          type: string
+          description: Creation timestamp of visit
+        updated_at:
+          type:
+          - string
+          - 'null'
+          description: Last Updated timestamp of visit
+        geofence_id:
+          type: string
+          format: uuid
+          description: GeofenceId associated with visit
+        driver_handle:
+          type: string
+          deprecated: true
+          description: Driver handle for this visit
+        worker_handle:
+          type: string
+          description: Worker handle for this visit
+        worker_name:
+          type:
+          - string
+          - 'null'
+          description: Worker name for this visit
+        worker_profile:
+          type:
+          - object
+          - 'null'
+          description: Worker profile associated with visit.
+          additionalProperties: {}
+        device_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Device id associated with visit
+        order_handle:
+          type: string
+          description: Order handle for this visit
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Place handle for this visit
+        ops_group_handle:
+          type: string
+          description: Ops Group handle for this visit
+        arrival:
+          description: Arrival information of visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+        exit:
+          description: Exited information of visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+        enroute:
+          description: ''
+          anyOf:
+          - $ref: '#/components/schemas/EnrouteStatsInfo'
+        service:
+          description: ''
+          anyOf:
+          - $ref: '#/components/schemas/ServiceStatsInfo'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata associated with this visit.
+          additionalProperties: {}
+        geofence_metadata:
+          type:
+          - object
+          - 'null'
+          description: Geofence Metadata associated with the visit.
+          additionalProperties: {}
+        tracking_rate:
+          type: number
+          description: Driver tracking rate during the lifespan of the order
+        system_generated_order_handle:
+          type:
+          - boolean
+          - 'null'
+          description: Boolean to filter out orders where order handle was automatically generated by HT system
+        visit_geometry:
+          description: Geometry of the visit
+          anyOf:
+          - $ref: '#/components/schemas/VisitGeometryModel'
+        geofence_address:
+          type:
+          - string
+          - 'null'
+          description: Geofence address for this visit
+        timezone:
+          type:
+          - string
+          - 'null'
+          description: Timezone associated with this visit
+        attachments:
+          type:
+          - array
+          - 'null'
+          description: Attachments associated with this geotag
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ImageAttachment1'
+            - $ref: '#/components/schemas/NoteAttachment1'
+            - $ref: '#/components/schemas/SignatureAttachment1'
+      required:
+      - created_at
+      - geofence_id
+      - ops_group_handle
+      - order_handle
+      - visit_id
+    AddAttachmentRequest:
+      type: object
+      properties:
+        attachments:
+          type:
+          - array
+          - 'null'
+          minItems: 1
+          maxItems: 10
+          description: List of attachments in event
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ImageAttachment'
+            - $ref: '#/components/schemas/NoteAttachment'
+            - $ref: '#/components/schemas/SignatureAttachment'
+    AddAttachmentResponse:
+      type: object
+      properties:
+        visit_id:
+          type: string
+          format: uuid
+          description: Unique identifier representing each visit.
+        created_at:
+          type: string
+          description: Creation timestamp of visit
+        updated_at:
+          type:
+          - string
+          - 'null'
+          description: Last Updated timestamp of visit
+        geofence_id:
+          type: string
+          format: uuid
+          description: GeofenceId associated with visit
+        driver_handle:
+          type: string
+          deprecated: true
+          description: Driver handle for this visit
+        worker_handle:
+          type: string
+          description: Worker handle for this visit
+        worker_name:
+          type:
+          - string
+          - 'null'
+          description: Worker name for this visit
+        worker_profile:
+          type:
+          - object
+          - 'null'
+          description: Worker profile associated with visit.
+          additionalProperties: {}
+        device_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Device id associated with visit
+        order_handle:
+          type: string
+          description: Order handle for this visit
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Place handle for this visit
+        ops_group_handle:
+          type: string
+          description: Ops Group handle for this visit
+        arrival:
+          description: Arrival information of visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+        exit:
+          description: Exited information of visit
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+        enroute:
+          description: ''
+          anyOf:
+          - $ref: '#/components/schemas/EnrouteStatsInfo'
+        service:
+          description: ''
+          anyOf:
+          - $ref: '#/components/schemas/ServiceStatsInfo'
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Metadata associated with this visit.
+          additionalProperties: {}
+        geofence_metadata:
+          type:
+          - object
+          - 'null'
+          description: Geofence Metadata associated with the visit.
+          additionalProperties: {}
+        tracking_rate:
+          type: number
+          description: Driver tracking rate during the lifespan of the order
+        system_generated_order_handle:
+          type:
+          - boolean
+          - 'null'
+          description: Boolean to filter out orders where order handle was automatically generated by HT system
+        visit_geometry:
+          description: Geometry of the visit
+          anyOf:
+          - $ref: '#/components/schemas/VisitGeometryModel'
+        geofence_address:
+          type:
+          - string
+          - 'null'
+          description: Geofence address for this visit
+        timezone:
+          type:
+          - string
+          - 'null'
+          description: Timezone associated with this visit
+        attachments:
+          type:
+          - array
+          - 'null'
+          description: Attachments associated with this geotag
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ImageAttachment1'
+            - $ref: '#/components/schemas/NoteAttachment1'
+            - $ref: '#/components/schemas/SignatureAttachment1'
+      required:
+      - created_at
+      - geofence_id
+      - ops_group_handle
+      - order_handle
+      - visit_id
+    ServiceStatsInfo:
+      type: object
+      properties:
+        duration:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the order
+        distance:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the order
+        outage_duration:
+          type:
+          - integer
+          - 'null'
+          description: Duration to be tracked for the order
+        outage:
+          type:
+          - object
+          - 'null'
+          description: Duration to be tracked for the order
+          additionalProperties: {}
+        tracking_rate:
+          type:
+          - number
+          - 'null'
+          description: Driver tracking rate during the lifespan of the visit
+    NoteAttachment:
+      type: object
+      properties:
+        type:
+          enum:
+          - note
+          description: Type of attachment
+        data:
+          type: string
+          description: Text for the note
+      required:
+      - data
+      - type
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    TokenAuth:
+      type: http
+      scheme: bearer
+    BearerAuth:
+      type: http
+      scheme: bearer

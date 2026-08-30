@@ -1,0 +1,2180 @@
+openapi: 3.2.0
+info:
+  title: HyperTrack Nearby API
+  version: '1.0'
+  description: HyperTrack API Reference — Orders, Workers, Places, Routes, and more.
+  contact:
+    name: HyperTrack support
+    url: https://hypertrack.com/contact
+    email: help@hypertrack.com
+servers:
+- url: https://v3.api.hypertrack.com
+tags:
+- name: Nearby
+paths:
+  /nearby/v4:
+    get:
+      parameters:
+      - in: query
+        name: pagination_token
+        description: Identifier used to fetch the next page of data
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: request_id
+        description: Unique id of a nearby search request.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: search_type
+        description: Type of nearby search. 'eta' for finding estimates of nearby workers, 'region' for finding nearby workers.
+        schema:
+          type:
+          - string
+          - 'null'
+          enum:
+          - eta
+          - region
+        required: false
+      - in: query
+        name: order_handle
+        description: Order handle used to search nearby workers for. This can later be used for tracking and associate nearby requests with corresponding orders.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: place_handle
+        description: Place handle used to search nearby workers for. This can later be used for tracking and associate nearby requests with corresponding places.
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: from_date
+        description: 'Start date of the search in yyyy-mm-dd format. default: 3 days ago utc date'
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: to_date
+        description: 'End date of the search in yyyy-mm-dd format. default: todays utc date'
+        schema:
+          type:
+          - string
+          - 'null'
+        required: false
+      - in: query
+        name: limit
+        description: Maximum number of items to return. If not provided, it will default to 100.
+        schema:
+          type:
+          - integer
+          - 'null'
+          default: 100
+          maximum: 100
+        required: false
+      - in: query
+        name: aggregate
+        description: If true, the response will be aggregated by date and search type. If false, the response will be returned as is.
+        schema:
+          type:
+          - boolean
+          - 'null'
+          default: false
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NearbySearchListResponse'
+              examples:
+                nearby_workers_response_example:
+                  summary: Nearby API request response example. This is the list of workers which are ranked based on their distance from the location of interest (nearest first).
+                  value:
+                    drivers:
+                    - device:
+                        device_id: 00112233-2F48-4DA1-ACEA-8A8D530670CF
+                        info:
+                          timezone: America/Los Angeles
+                          os_name: iOS
+                          device_brand: Apple
+                          sdk_version: func test app
+                          device_model: IPhone X
+                          network_operator: T-Mobile
+                          name: Func Test Device
+                          os_version: 12.1.4
+                          os_hardware_identifier: 719bef31-e487-46e0-86f1-5f32589fd9eb
+                        profile:
+                          gig_type: ridesharing
+                        status:
+                          value: active
+                          data:
+                            activity: drive
+                            recorded_at: 2022-06-30 13:35:14.806000+00:00
+                      location:
+                        coordinates:
+                        - -122.3999933082254
+                        - 37.793651385106074
+                        type: Point
+                      duration: null
+                      distance: 9303
+                      ongoing_trip: null
+                      error: null
+                    summary:
+                      total_drivers: 1
+                      processed_drivers: 1
+                      unprocessed_drivers: 0
+                      outside_region_drivers: 0
+                      no_route_drivers: 0
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Nearby
+      summary: Get all nearby searches performed
+      description: This API returns a list of all nearby searches performed. The response includes the search parameters, the results of the search. The API is useful for tracking the history of nearby searches and for debugging purposes. The API returns a paginated list of nearby searches, with the ability to filter by date range and search parameters.
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+    post:
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NearbyResponse'
+              examples:
+                nearby_workers_response_example:
+                  summary: Nearby API request response example. This is the list of workers which are ranked based on their distance from the location of interest (nearest first).
+                  value:
+                    request_id: 00000000-aaaa-bbbb-cccc-111122223333
+                    summary:
+                      no_route_workers: 0
+                      outside_region_workers: 0
+                      processed_workers: 2
+                      total_workers: 2
+                      unprocessed_workers: 0
+                    workers:
+                    - created_at: 2024-10-10 10:10:10
+                      device:
+                        device_id: AAA11111-BBBB-2222-CCCC-3333DDDD4444
+                        info:
+                          device_brand: Apple
+                          device_model: iPad9,3
+                          name: worker001
+                          network_operator: CarrierX
+                          os_name: iOS
+                          os_version: 16.3.0
+                          sdk_version: 5.11.0+abcd1234
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker001
+                        status:
+                          data:
+                            activity: idle
+                            recorded_at: 2025-05-16 08:00:00+00:00
+                          value: active
+                      distance: 8276.293463598915
+                      location:
+                        coordinates:
+                        - -89.079472
+                        - 42.264265
+                        type: Point
+                      name: worker001
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker001
+                      timezone: America/Chicago
+                      work_status:
+                        available: true
+                        tracking: true
+                      worker_handle: worker001
+                    - created_at: 2025-01-15 14:30:00
+                      device:
+                        device_id: BBB22222-CCCC-3333-DDDD-4444EEEE5555
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone13,2
+                          name: worker002
+                          network_operator: CarrierY
+                          os_name: iOS
+                          os_version: 17.0.1
+                          sdk_version: 5.11.0+abcd1234
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker002
+                        status:
+                          data:
+                            reason: manual_shutdown
+                            recorded_at: 2025-05-16 08:15:00+00:00
+                          value: inactive
+                      distance: 8373.143574586262
+                      location:
+                        coordinates:
+                        - -89.080647
+                        - 42.264208
+                        type: Point
+                      name: worker002
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker002
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: false
+                      worker_handle: worker002
+                filtered_nearby_workers_response_example:
+                  summary: Nearby API request response example filtered by profile/search criteria. This is the list of workers which are ranked based on their distance from the location of interest (nearest first) and matching the specified criteria.
+                  value:
+                    request_id: 00000000-aaaa-bbbb-cccc-111122223344
+                    summary:
+                      no_route_workers: 0
+                      outside_region_workers: 0
+                      processed_workers: 1
+                      total_workers: 1
+                      unprocessed_workers: 0
+                    workers:
+                    - created_at: 2024-10-10 10:10:10
+                      device:
+                        device_id: AAA11111-BBBB-2222-CCCC-3333DDDD4444
+                        info:
+                          device_brand: Apple
+                          device_model: iPad9,3
+                          name: worker001
+                          network_operator: CarrierX
+                          os_name: iOS
+                          os_version: 16.3.0
+                          sdk_version: 5.11.0+abcd1234
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker001
+                        status:
+                          data:
+                            activity: idle
+                            recorded_at: 2025-05-16 08:00:00+00:00
+                          value: active
+                      distance: 8276.293463598915
+                      location:
+                        coordinates:
+                        - -89.079472
+                        - 42.264265
+                        type: Point
+                      name: worker001
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker001
+                      timezone: America/Chicago
+                      work_status:
+                        available: true
+                        tracking: true
+                      worker_handle: worker001
+                eta_workers_response_example:
+                  summary: Nearby API request response example for getting ETA of a list of workers. This is the list of workers which are ranked based on their drive duration from the location of interest (nearest first).
+                  value:
+                    request_id: 9b47006e-34de-450d-8681-50fa2c519a79
+                    summary:
+                      no_route_workers: 0
+                      outside_region_workers: 0
+                      processed_workers: 2
+                      total_workers: 2
+                      unprocessed_workers: 0
+                    workers:
+                    - created_at: 2024-07-09 20:10:10.442000
+                      device:
+                        device_id: DEVICE-001
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone15,4
+                          name: worker_alpha
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.4.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker_alpha
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 08:30:45.224000+00:00
+                          value: active
+                      distance: 2696
+                      duration: 236
+                      location:
+                        coordinates:
+                        - -88.997979
+                        - 42.262501
+                        type: Point
+                      name: worker_alpha
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker_alpha
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: worker_alpha
+                    - created_at: 2024-07-09 18:52:01.346000
+                      device:
+                        device_id: DEVICE-002
+                        info:
+                          device_brand: samsung
+                          device_model: SM-S908U1
+                          name: worker_bravo
+                          network_operator: AT&T
+                          os_name: Android
+                          os_version: '14'
+                          sdk_version: 7.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker_bravo
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 08:39:29.562000+00:00
+                          value: active
+                      distance: 120822
+                      duration: 4530
+                      location:
+                        coordinates:
+                        - -87.682951
+                        - 41.994821
+                        type: Point
+                      name: worker_bravo
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker_bravo
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: worker_bravo
+                eta_nearby_workers_response_example:
+                  summary: Nearby API request response example for getting ETA of nearby workers. This is the list of workers which are ranked based on their drive duration from the location of interest (nearest first).
+                  value:
+                    request_id: b8aeafa1-4024-4e3e-957d-9e77f113ec27
+                    summary:
+                      no_route_workers: 0
+                      outside_region_workers: 0
+                      processed_workers: 8
+                      total_workers: 10
+                      unprocessed_workers: 2
+                    workers:
+                    - created_at: 2024-07-09 20:10:10.442000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-0
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone15,4
+                          name: updated_name_0
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.4.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_0
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 07:07:17.222000+00:00
+                          value: active
+                      distance: 2696
+                      duration: 292
+                      location:
+                        coordinates:
+                        - -88.998123
+                        - 42.262075
+                        type: Point
+                      name: updated_name_0
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_0
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_0
+                    - created_at: 2024-11-29 17:25:37.284000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-1
+                        info:
+                          device_brand: Apple
+                          device_model: iPad7,12
+                          name: updated_name_1
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 17.5.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_1
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 07:37:54.821000+00:00
+                          value: active
+                      distance: 9171
+                      duration: 720
+                      location:
+                        coordinates:
+                        - -89.07944
+                        - 42.264295
+                        type: Point
+                      name: updated_name_1
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_1
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_1
+                    - created_at: 2024-07-09 18:14:30.061000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-2
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone12,1
+                          name: updated_name_2
+                          network_operator: Visible
+                          os_name: iOS
+                          os_version: 15.6.0
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_2
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 07:01:10.609000+00:00
+                          value: active
+                      distance: 68362
+                      duration: 2495
+                      location:
+                        coordinates:
+                        - -88.324998
+                        - 42.034393
+                        type: Point
+                      name: updated_name_2
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_2
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_2
+                    - created_at: 2024-07-10 11:17:42.495000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-3
+                        info:
+                          device_brand: alps
+                          device_model: S24 Ultra
+                          name: updated_name_3
+                          network_operator: T-Mobile
+                          os_name: Android
+                          os_version: '10'
+                          sdk_version: 7.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_3
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 06:48:11.753000+00:00
+                          value: active
+                      distance: 120827
+                      duration: 4443
+                      location:
+                        coordinates:
+                        - -87.692175
+                        - 42.011515
+                        type: Point
+                      name: updated_name_3
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_3
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_3
+                    - created_at: 2025-04-01 12:38:41.792000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-4
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone13,2
+                          name: updated_name_4
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.3.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_4
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 06:54:49.891000+00:00
+                          value: active
+                      distance: 138605
+                      duration: 4657
+                      location:
+                        coordinates:
+                        - -87.938059
+                        - 42.986098
+                        type: Point
+                      name: updated_name_4
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_4
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_4
+                    - created_at: 2025-04-13 17:47:52.864000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-5
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone17,4
+                          name: updated_name_5
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.4.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_5
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 05:49:38.493000+00:00
+                          value: active
+                      distance: 143584
+                      duration: 4717
+                      location:
+                        coordinates:
+                        - -87.959918
+                        - 43.041797
+                        type: Point
+                      name: updated_name_5
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_5
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_5
+                    - created_at: 2024-08-24 02:26:26.748000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-6
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone14,6
+                          name: updated_name_6
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.3.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_6
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 06:45:27.962000+00:00
+                          value: active
+                      distance: 152366
+                      duration: 4944
+                      location:
+                        coordinates:
+                        - -87.917558
+                        - 43.087834
+                        type: Point
+                      name: updated_name_6
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_6
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_6
+                    - created_at: 2024-07-09 19:34:53.727000
+                      device:
+                        device_id: UPDATED-DEVICE-ID-7
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone17,4
+                          name: updated_name_7
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.4.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: updated_driver_handle_7
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 07:36:30.426000+00:00
+                          value: active
+                      distance: 146902
+                      duration: 5002
+                      location:
+                        coordinates:
+                        - -87.815815
+                        - 41.676121
+                        type: Point
+                      name: updated_name_7
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: updated_driver_handle_7
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: updated_worker_handle_7
+                nearby_order_handle_workers_response_example:
+                  summary: Nearby API request response example. This is the list of workers which are ranked based on their distance from the destination of an order_handle.
+                  value:
+                    request_id: 9b47006e-34de-450d-8681-50fa2c519a79
+                    summary:
+                      no_route_workers: 0
+                      outside_region_workers: 0
+                      processed_workers: 2
+                      total_workers: 2
+                      unprocessed_workers: 0
+                    workers:
+                    - created_at: 2024-07-09 20:10:10.442000
+                      device:
+                        device_id: DEVICE-001
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone15,4
+                          name: worker_alpha
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.4.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker_alpha
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 08:30:45.224000+00:00
+                          value: active
+                      distance: 2696
+                      duration: 236
+                      location:
+                        coordinates:
+                        - -88.997979
+                        - 42.262501
+                        type: Point
+                      name: worker_alpha
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker_alpha
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: worker_alpha
+                    - created_at: 2024-07-09 18:52:01.346000
+                      device:
+                        device_id: DEVICE-002
+                        info:
+                          device_brand: samsung
+                          device_model: SM-S908U1
+                          name: worker_bravo
+                          network_operator: AT&T
+                          os_name: Android
+                          os_version: '14'
+                          sdk_version: 7.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker_bravo
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 08:39:29.562000+00:00
+                          value: active
+                      distance: 120822
+                      duration: 4530
+                      location:
+                        coordinates:
+                        - -87.682951
+                        - 41.994821
+                        type: Point
+                      name: worker_bravo
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker_bravo
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: worker_bravo
+                nearby_place_handle_workers_response_example:
+                  summary: Nearby API request response example. This is the list of workers which are ranked based on their distance from a place_handle
+                  value:
+                    request_id: 9b47006e-34de-450d-8681-50fa2c519a79
+                    summary:
+                      no_route_workers: 0
+                      outside_region_workers: 0
+                      processed_workers: 2
+                      total_workers: 2
+                      unprocessed_workers: 0
+                    workers:
+                    - created_at: 2024-07-09 20:10:10.442000
+                      device:
+                        device_id: DEVICE-001
+                        info:
+                          device_brand: Apple
+                          device_model: iPhone15,4
+                          name: worker_alpha
+                          network_operator: --
+                          os_name: iOS
+                          os_version: 18.4.1
+                          sdk_version: 5.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker_alpha
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 08:30:45.224000+00:00
+                          value: active
+                      distance: 2696
+                      duration: 236
+                      location:
+                        coordinates:
+                        - -88.997979
+                        - 42.262501
+                        type: Point
+                      name: worker_alpha
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker_alpha
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: worker_alpha
+                    - created_at: 2024-07-09 18:52:01.346000
+                      device:
+                        device_id: DEVICE-002
+                        info:
+                          device_brand: samsung
+                          device_model: SM-S908U1
+                          name: worker_bravo
+                          network_operator: AT&T
+                          os_name: Android
+                          os_version: '14'
+                          sdk_version: 7.11.0+74d1fabf
+                          timezone: America/Chicago
+                        profile:
+                          driver_handle: worker_bravo
+                        status:
+                          data:
+                            activity: unknown
+                            recorded_at: 2025-05-16 08:39:29.562000+00:00
+                          value: active
+                      distance: 120822
+                      duration: 4530
+                      location:
+                        coordinates:
+                        - -87.682951
+                        - 41.994821
+                        type: Point
+                      name: worker_bravo
+                      ops_group_handle: default
+                      profile:
+                        driver_handle: worker_bravo
+                      timezone: America/Chicago
+                      work_status:
+                        available: false
+                        tracking: true
+                      worker_handle: worker_bravo
+          description: Successful response
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                route_not_found:
+                  summary: route_not_found
+                  value:
+                    code: route_not_found
+                    title: Route could not be found
+                    detail: Could not generate a route from the device location to the set destination
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                place_not_found:
+                  summary: place_not_found
+                  value:
+                    code: place_not_found
+                    title: Place not found
+                    detail:
+                      description: Place not found for the id or handle
+                order_not_found:
+                  summary: order_not_found
+                  value:
+                    code: order_not_found
+                    title: Order Not Found
+                    detail:
+                      description: Order not found for handle sample-order-handle
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                route_error:
+                  summary: route_error
+                  value:
+                    code: route_error
+                    title: Failed to generate the route
+                    detail: Server could not complete the route generation
+      tags:
+      - Nearby
+      summary: Get all nearby workers
+      description: 'Use this API to get all the nearby workers from order destination. A maximum of 1000 workers are returned in order of their haversine distance from order destination. Note: if the search_radius filter is not specified, it uses the maximum allowed search radius of 100 miles (160934 meters).'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NearbyRequest'
+            examples:
+              nearby_workers_example:
+                summary: Use this POST Worker Nearby API request as an example to find available workers near location of interest to perform a dispatch operation.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - -88.97936034469119
+                        - 42.2714428209251
+                        type: Point
+                  search_type: region
+              filtered_nearby_workers_example:
+                summary: Use this POST Worker Nearby API request to find available workers near a location of interest that also satisfy certain profile/search criteria.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - -88.97936034469119
+                        - 42.2714428209251
+                        type: Point
+                  search_type: region
+                  search_filter:
+                    search_radius: 8300
+              eta_workers_example:
+                summary: Use this POST Worker Nearby API request to get estimates of a list of workers to the location of interest.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - -88.97936034469119
+                        - 42.2714428209251
+                        type: Point
+                  search_type: eta
+                  search_filter:
+                    worker_list:
+                    - worker_alpha
+                    - worker_bravo
+              eta_nearby_workers_example:
+                summary: Use this POST Worker Nearby API request to get estimates of drive duration and drive distance for nearby workers to the location of interest.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - -88.97936034469119
+                        - 42.2714428209251
+                        type: Point
+                  search_type: eta
+              nearby_order_handle_workers_example:
+                summary: Use this POST Worker Nearby API request as an example to find available workers near destination of an order_handle to perform a dispatch operation.
+                value:
+                  order:
+                    order_handle: sample-order-handle
+                  search_type: region
+              nearby_place_handle_workers_example:
+                summary: Use this POST Worker Nearby API request as an example to find available workers near a place_handle
+                value:
+                  order:
+                    destination:
+                      place_handle: sample-place-handle
+                  search_type: region
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+  /nearby/v3:
+    post:
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NearbyResponse1'
+              examples:
+                nearby_drivers_response_example:
+                  summary: Nearby API request response example. This is the list of devices which are ranked based on their distance from the location of interest (nearest first).
+                  value:
+                    drivers:
+                    - device:
+                        device_id: 00112233-2F48-4DA1-ACEA-8A8D530670CF
+                        info:
+                          timezone: America/Los Angeles
+                          os_name: iOS
+                          device_brand: Apple
+                          sdk_version: func test app
+                          device_model: IPhone X
+                          network_operator: T-Mobile
+                          name: Func Test Device
+                          os_version: 12.1.4
+                          os_hardware_identifier: 719bef31-e487-46e0-86f1-5f32589fd9eb
+                        profile:
+                          gig_type: ridesharing
+                        status:
+                          value: active
+                          data:
+                            activity: drive
+                            recorded_at: 2022-06-30 13:35:14.806000+00:00
+                      location:
+                        coordinates:
+                        - -122.3999933082254
+                        - 37.793651385106074
+                        type: Point
+                      duration: null
+                      distance: 9303
+                      ongoing_trip: null
+                      error: null
+                    summary:
+                      total_drivers: 1
+                      processed_drivers: 1
+                      unprocessed_drivers: 0
+                      outside_region_drivers: 0
+                      no_route_drivers: 0
+                filtered_nearby_drivers_response_example:
+                  summary: Nearby API request response example filtered by profile. This is the list of devices which are ranked based on their distance from the location of interest (nearest first) and match the specified profile.
+                  value:
+                    drivers:
+                    - device:
+                        device_id: 00112233-2F48-4DA1-ACEA-8A8D530670CF
+                        info:
+                          timezone: America/Los Angeles
+                          os_name: iOS
+                          device_brand: Apple
+                          sdk_version: func test app
+                          device_model: IPhone X
+                          network_operator: T-Mobile
+                          name: Func Test Device
+                          os_version: 12.1.4
+                          os_hardware_identifier: 719bef31-e487-46e0-86f1-5f32589fd9eb
+                        profile:
+                          gig_type: ridesharing
+                        status:
+                          value: active
+                          data:
+                            activity: drive
+                            recorded_at: 2022-06-30 13:35:14.806000+00:00
+                      location:
+                        coordinates:
+                        - -122.3999933082254
+                        - 37.793651385106074
+                        type: Point
+                      duration: null
+                      distance: 9303
+                      ongoing_trip: null
+                      error: null
+                    summary:
+                      total_drivers: 1
+                      processed_drivers: 1
+                      unprocessed_drivers: 0
+                      outside_region_drivers: 0
+                      no_route_drivers: 0
+                eta_drivers_response_example:
+                  summary: Nearby API request response example for getting ETA of a list of drivers. This is the list of devices which are ranked based on their drive duration from the location of interest (nearest first).
+                  value:
+                    drivers:
+                    - device:
+                        device_id: 00112233-2A7E-4D17-BF76-90926FD82E7C
+                        info:
+                          timezone: America/Los Angeles
+                          os_name: iOS
+                          device_brand: Apple
+                          sdk_version: func test app
+                          device_model: IPhone X
+                          network_operator: T-Mobile
+                          name: Func Test Device
+                          os_version: 12.1.4
+                          os_hardware_identifier: ac75716e-4cef-4ef6-be1c-92cfc8e7c2f4
+                        profile:
+                          key_0: dc202869-c931-4093-b778-9908a8eb3904
+                        status:
+                          value: active
+                          data:
+                            activity: unknown
+                            recorded_at: 2022-06-27 07:59:37.290000+00:00
+                      location:
+                        geometry:
+                          type: Point
+                          coordinates:
+                          - 35.402007
+                          - 47.792524
+                      duration: 2927
+                      distance: 21528
+                      ongoing_trip: null
+                      error: null
+                    summary:
+                      total_drivers: 14
+                      processed_drivers: 1
+                      unprocessed_drivers: 1
+                      outside_region_drivers: 12
+                      no_route_drivers: 0
+                eta_nearby_drivers_response_example:
+                  summary: Nearby API request response example for getting ETA of nearby drivers. This is the list of devices which are ranked based on their drive duration from the location of interest (nearest first).
+                  value:
+                    drivers:
+                    - device:
+                        device_id: 00112233-2A7E-4D17-BF76-90926FD82E7C
+                        info:
+                          timezone: America/Los Angeles
+                          os_name: iOS
+                          device_brand: Apple
+                          sdk_version: func test app
+                          device_model: IPhone X
+                          network_operator: T-Mobile
+                          name: Func Test Device
+                          os_version: 12.1.4
+                          os_hardware_identifier: ac75716e-4cef-4ef6-be1c-92cfc8e7c2f4
+                        profile:
+                          key_0: dc202869-c931-4093-b778-9908a8eb3904
+                        status:
+                          value: active
+                          data:
+                            activity: unknown
+                            recorded_at: 2022-06-27 07:59:37.290000+00:00
+                      location:
+                        geometry:
+                          type: Point
+                          coordinates:
+                          - 35.402007
+                          - 47.792524
+                      duration: 2927
+                      distance: 21528
+                      ongoing_trip: null
+                      error: null
+                    summary:
+                      total_drivers: 1
+                      processed_drivers: 1
+                      unprocessed_drivers: 0
+                      outside_region_drivers: 0
+                      no_route_drivers: 0
+          description: Successful response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+          description: Authentication error
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: Validation error
+      tags:
+      - Nearby
+      summary: Get all nearby drivers
+      description: 'Use this API to get all the nearby drivers from order destination. A maximum of 1000 drivers are returned in order of their haversine distance from order destination around search radius of 100 miles (160934 meters). Note: if the search_radius filter is not specified it uses the maximum allowed search radius.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NearbyRequest1'
+            examples:
+              nearby_drivers_example:
+                summary: Use this POST Device Nearby API request as an example to find available devices near location of interest to perform a dispatch operation.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - -122.3599933082254
+                        - 37.753651385106075
+                        type: Point
+                  search_type: region
+              filtered_nearby_drivers_example:
+                summary: Use this POST Device Nearby API request to find available devices near a location of interest that also satisfy certain profile criteria.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - -122.3599933082254
+                        - 37.753651385106075
+                        type: Point
+                    order_id: your_order_id
+                    metadata:
+                      order_type: grocery
+                  search_type: region
+                  search_filter:
+                    driver_profile:
+                      gig_type: ridesharing
+                    include_on_trip: true
+                    search_radius: 15000
+              eta_drivers_example:
+                summary: Use this POST Device Nearby API request to get estimates of a list of drivers to the location of interest.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - 35.502007
+                        - 47.892524
+                        type: Point
+                  search_type: eta
+                  search_filter:
+                    driver_list:
+                    - 00112233-6A5F-4F6E-9231-8480A4438064
+                    - 00112233-2A7E-4D17-BF76-90926FD82E7C
+                    - 00112233-B622-486D-A76F-FEB522B345E6
+              eta_nearby_drivers_example:
+                summary: Use this POST Device Nearby API request to get estimates of drive duration and drive distance for nearby drivers to the location of interest.
+                value:
+                  order:
+                    destination:
+                      geometry:
+                        coordinates:
+                        - -122.3599933082254
+                        - 37.753651385106075
+                        type: Point
+                  search_type: eta
+      security:
+      - BasicAuth: []
+      - TokenAuth: []
+components:
+  schemas:
+    NearbyRequest:
+      type: object
+      properties:
+        ops_group_handle:
+          type:
+          - string
+          - 'null'
+          description: ops group handle used to filter nearby search results by operational group
+        order:
+          $ref: '#/components/schemas/NearbyOrder'
+        search_type:
+          type: string
+          enum:
+          - eta
+          - region
+        search_filter:
+          anyOf:
+          - $ref: '#/components/schemas/SearchFilter'
+        limit:
+          type:
+          - integer
+          - 'null'
+          maximum: 1000
+      required:
+      - order
+      - search_type
+    NearbyLocation:
+      type: object
+      properties:
+        geometry:
+          type: object
+          description: Location geometry. As of right now, only Point is supported.
+          additionalProperties: {}
+        type:
+          type: string
+          default: Point
+      required:
+      - geometry
+    WorkStatus:
+      type: object
+      properties:
+        tracking:
+          type:
+          - boolean
+          - 'null'
+          description: Indicates if the worker is currently being tracked.
+        available:
+          type:
+          - boolean
+          - 'null'
+          description: Indicates if the worker is available for new tasks.
+    NearbyDeviceInfo:
+      type: object
+      properties:
+        timezone:
+          type:
+          - string
+          - 'null'
+          description: The timezone on the device in TZ format.
+        os_name:
+          type:
+          - string
+          - 'null'
+          description: The operating system of the device, can be one of iOS or Android.
+        device_brand:
+          type:
+          - string
+          - 'null'
+          description: The brand of the device.
+        sdk_version:
+          type:
+          - string
+          - 'null'
+          description: 'The HyperTrack SDK version on the device. Can be reviewed here: Android, iOS, React Native.'
+        device_model:
+          type:
+          - string
+          - 'null'
+          description: The device model.
+        network_operator:
+          type:
+          - string
+          - 'null'
+          description: The network operator for the device.
+        os_version:
+          type:
+          - string
+          - 'null'
+          description: The version of the operating system on the device.
+        os_hardware_identifier:
+          type:
+          - string
+          - 'null'
+          description: Hardware identifier returned from the OS. (OS specific. Android uses ANDROID_ID; iOS uses identifierForVendor.
+        name:
+          type:
+          - string
+          - 'null'
+          description: Name of the device.
+    BatteryStatus1:
+      type: object
+      properties:
+        battery_percent:
+          type: integer
+          description: Integer indicating the percent of charge on the battery.
+        recorded_at:
+          type: string
+          description: Timestamp of the reading
+      required:
+      - battery_percent
+      - recorded_at
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: error code for the type of error
+        title:
+          type: string
+          description: error title
+        detail:
+          type: string
+          description: error detail
+    NearbySummary:
+      type: object
+      properties:
+        total_workers:
+          type: integer
+          description: Total number of workers found in nearby region matching the filters.
+        processed_workers:
+          type: integer
+          description: Number of workers processed and returned in workers response.
+        unprocessed_workers:
+          type: integer
+          description: Number of workers that have not been processed.
+        outside_region_workers:
+          type: integer
+          description: Number of workers outside nearby region (default value of search_filter.search_radius), only returned if worker_list filter is specified.
+        no_route_workers:
+          type: integer
+          description: Number of workers for whom no route was found to the destination, only returned if worker_list filter is specified.
+      required:
+      - no_route_workers
+      - outside_region_workers
+      - processed_workers
+      - total_workers
+      - unprocessed_workers
+    LocationGeometryResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as list of [longitude, latitude].
+          items: {}
+      required:
+      - coordinates
+      - type
+    NearbyDevice:
+      type: object
+      properties:
+        device_id:
+          type: string
+          description: Device id of the device.
+        info:
+          description: device_info. Same fields support as in devices API.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyDeviceInfo'
+        profile:
+          type:
+          - object
+          - 'null'
+          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
+          additionalProperties: {}
+        status:
+          description: Device status.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatus'
+      required:
+      - device_id
+    DriverDateSchedule:
+      type: object
+      properties:
+        start_time:
+          type: string
+          description: Start time represented by HH:mm of the worker's day schedule
+        end_time:
+          type: string
+          description: End time represented by HH:mm of the worker's day schedule
+        date:
+          type: string
+          description: Date on which the worker is available for work
+        ops_group_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique identifier for an Ops Group
+        priority:
+          type:
+          - integer
+          - 'null'
+          description: Priority of schedule of a worker
+      required:
+      - date
+      - end_time
+      - start_time
+    NearbyDevice1:
+      type: object
+      properties:
+        device_id:
+          type: string
+          description: Device id of the device.
+        info:
+          description: device_info. Same fields support as in devices API.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceInfo1'
+        profile:
+          type: object
+          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
+          additionalProperties: {}
+        status:
+          description: Device status.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatus1'
+      required:
+      - device_id
+      - info
+      - profile
+      - status
+    SearchFilter1:
+      type: object
+      properties:
+        search_radius:
+          type:
+          - integer
+          - 'null'
+          maximum: 160934
+          description: Maximum distance (haversine) in meters of drivers from order destination, maximum of 160934 meters (100 miles).
+        include_on_trip:
+          type:
+          - boolean
+          - 'null'
+          description: True when on trip drivers are also needed as part of response (default value is false).
+        driver_profile:
+          type:
+          - object
+          - 'null'
+          description: Used to specify a filter that is applied on the drivers returned in a nearby search result; For example, this profile filter can represent attributes describing your gig workers, such as a team assignment, gig category, etc.
+          additionalProperties: {}
+        driver_list:
+          type:
+          - array
+          - 'null'
+          minItems: 1
+          description: Array of device ids whose estimates to order destination will be calculated. Only for search type 'eta', if present other filters are not allowed.
+          items:
+            type: string
+            format: uuid
+    NearbySearchRequestSummary:
+      type: object
+      properties:
+        request_id:
+          type: string
+          description: Unique identifier for the nearby search request.
+        request:
+          description: Nearby search request.
+          allOf:
+          - $ref: '#/components/schemas/NearbyRequest'
+        created_on:
+          type: string
+          description: Timestamp at which the nearby search request was created. This is in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
+        workers:
+          type:
+          - array
+          - 'null'
+          description: Nearby search response.
+          items:
+            $ref: '#/components/schemas/NearbyWorkerSummary'
+        summary:
+          description: Summary of the nearby search results.
+          anyOf:
+          - $ref: '#/components/schemas/NearbySummary'
+        timezone:
+          type:
+          - string
+          - 'null'
+          description: Timezone of the worker
+      required:
+      - created_on
+      - request
+      - request_id
+    NearbySearchListResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          description: List of nearby searches performed.
+          items:
+            $ref: '#/components/schemas/NearbySearchRequestSummary'
+        pagination_token:
+          type:
+          - string
+          - 'null'
+          description: Token to be used for pagination. If present, it indicates that there are more pages of results available.
+        aggregates:
+          description: Aggregates for nearby search requests. This is only present when the request is made with aggregate=true.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyAggregates'
+      required:
+      - requests
+    NearbySummary1:
+      type: object
+      properties:
+        total_drivers:
+          type: integer
+          description: Total number of drivers found in nearby region matching the filters.
+        processed_drivers:
+          type: integer
+          description: Number of drivers processed and returned in drivers response.
+        unprocessed_drivers:
+          type: integer
+          description: Number of drivers that have not been processed.
+        outside_region_drivers:
+          type: integer
+          description: Number of drivers outside nearby region (default value of search_filter.search_radius), only returned if driver_list filter is specified.
+      required:
+      - outside_region_drivers
+      - processed_drivers
+      - total_drivers
+      - unprocessed_drivers
+    DriverRecurringSchedule:
+      type: object
+      properties:
+        start_time:
+          type: string
+          description: Start time represented by HH:mm of the worker's day schedule
+        end_time:
+          type: string
+          description: End time represented by HH:mm of the worker's day schedule
+        day_of_week:
+          type: string
+          enum:
+          - SUNDAY
+          - MONDAY
+          - TUESDAY
+          - WEDNESDAY
+          - THURSDAY
+          - FRIDAY
+          - SATURDAY
+          description: Day of the week when the worker is available for work
+        ops_group_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique identifier for an Ops Group
+        priority:
+          type:
+          - integer
+          - 'null'
+          description: Priority of schedule of a worker
+      required:
+      - day_of_week
+      - end_time
+      - start_time
+    NearbyDeviceStatus1:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Can be one of active, inactive, disconnected, available or unavailable. Please read here to understand how HyperTrack tracks device status.
+        data:
+          description: Extra information about device status.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatusData1'
+      required:
+      - data
+      - value
+    LocationPermission1:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+          - always
+          - foreground_only
+          - never
+          - location_imprecise
+          - unknown
+          description: State of location permission
+        recorded_at:
+          type:
+          - string
+          - 'null'
+          description: Time stamp of the last known location permission
+      required:
+      - state
+    NearbyRequest1:
+      type: object
+      properties:
+        order:
+          $ref: '#/components/schemas/NearbyOrder1'
+        search_type:
+          type: string
+          enum:
+          - eta
+          - region
+        search_filter:
+          anyOf:
+          - $ref: '#/components/schemas/SearchFilter1'
+        limit:
+          type:
+          - integer
+          - 'null'
+          maximum: 1000
+      required:
+      - order
+      - search_type
+    NearbyDestination1:
+      type: object
+      properties:
+        geometry:
+          description: Destination location around which to search drivers. As of right now, only 'Point' is supported.
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometry'
+      required:
+      - geometry
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
+    NearbyDeviceStatus:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Can be one of active, inactive, disconnected, available or unavailable. Please read here to understand how HyperTrack tracks device status.
+        data:
+          description: Extra information about device status.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatusData'
+      required:
+      - data
+      - value
+    NearbyOngoingRoute:
+      type: object
+      properties:
+        route_handle:
+          type: string
+          description: route handle which is still ongoing (only present if worker has any ongoing route and request has include_on_route as true).
+        destination:
+          type: object
+          description: Destination geometry for Ongoing route (only present if workers has any ongoing route and request has include_on_route as true).
+          additionalProperties: {}
+        remaining_distance:
+          type: integer
+          description: Distance (in meters) workers needs to travel to reach route destination (only present if workers has any ongoing route and request has include_on_route as true).
+        remaining_duration:
+          type: integer
+          description: Time (in seconds) needed for workers to travel to reach route destination (only present if workers has any ongoing route and request has include_on_route as true).
+      required:
+      - destination
+      - remaining_distance
+      - remaining_duration
+      - route_handle
+    LocationGeometry:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Point
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude]
+          items:
+            type: number
+      required:
+      - coordinates
+      - type
+    NearbyDeviceInfo1:
+      type: object
+      properties:
+        timezone:
+          type: string
+          description: The timezone on the device in TZ format.
+        os_name:
+          type: string
+          description: The operating system of the device, can be one of iOS or Android.
+        device_brand:
+          type: string
+          description: The brand of the device.
+        sdk_version:
+          type: string
+          description: 'The HyperTrack SDK version on the device. Can be reviewed here: Android, iOS, React Native.'
+        device_model:
+          type: string
+          description: The device model.
+        network_operator:
+          type: string
+          description: The network operator for the device.
+        os_version:
+          type: string
+          description: The version of the operating system on the device.
+        os_hardware_identifier:
+          type: string
+          description: Hardware identifier returned from the OS. (OS specific. Android uses ANDROID_ID; iOS uses identifierForVendor.
+        name:
+          type: string
+          description: Name of the device.
+      required:
+      - device_brand
+      - device_model
+      - name
+      - network_operator
+      - os_hardware_identifier
+      - os_name
+      - os_version
+      - sdk_version
+      - timezone
+    NearbyResponse1:
+      type: object
+      properties:
+        drivers:
+          type: array
+          description: List of driver objects.
+          items:
+            $ref: '#/components/schemas/NearbyDriver'
+        summary:
+          description: Summary of the nearby request.
+          allOf:
+          - $ref: '#/components/schemas/NearbySummary1'
+      required:
+      - drivers
+      - summary
+    NearbyOngoingTrip:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          description: Trip id which is still ongoing (only present if device has any ongoing trip and request has include_on_trip as true).
+        destination:
+          type: object
+          description: Destination geometry for Ongoing trip (only present if device has any ongoing trip and request has include_on_trip as true).
+          additionalProperties: {}
+        remaining_distance:
+          type: integer
+          description: Distance (in meters) device needs to travel to reach trip destination (only present if device has any ongoing trip and request has include_on_trip as true).
+        remaining_duration:
+          type: integer
+          description: Time (in seconds) needed for device to travel to reach trip destination (only present if device has any ongoing trip and request has include_on_trip as true).
+      required:
+      - destination
+      - remaining_distance
+      - remaining_duration
+      - trip_id
+    SearchFilter:
+      type: object
+      properties:
+        include_on_route:
+          type:
+          - boolean
+          - 'null'
+          description: True when on route workers are also needed as part of response (default value is false).
+        worker_profile:
+          type:
+          - object
+          - 'null'
+          description: Used to specify a filter that is applied on the workers returned in a nearby search result; For example, this profile filter can represent attributes describing your gig workers, such as a team assignment, gig category, etc.
+          additionalProperties: {}
+        worker_list:
+          type:
+          - array
+          - 'null'
+          minItems: 1
+          description: Array of worker handles whose estimates to order destination will be calculated. Only for search type 'eta', if present only `search_radius` filter is allowed, others are not allowed.
+          items:
+            type: string
+        work_status:
+          description: Optional filter to specify the work status of workers to include in the search results.
+          anyOf:
+          - $ref: '#/components/schemas/WorkStatus'
+        search_radius:
+          type:
+          - integer
+          - 'null'
+          default: 160934
+          maximum: 160934
+          description: Maximum distance (haversine) in meters of workers from order destination, maximum of 160934 meters (100 miles).
+    NearbyWorkerSummary:
+      type: object
+      properties:
+        device_id:
+          type: string
+          description: Device id of the worker.
+        location:
+          description: Location of the worker
+          allOf:
+          - $ref: '#/components/schemas/PointLocationGeometry'
+        worker_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique customer provided identifier for a worker
+        name:
+          type:
+          - string
+          - 'null'
+          description: Name of the worker
+        profile:
+          type:
+          - object
+          - 'null'
+          description: Metadata associated with a worker
+          additionalProperties: {}
+        work_status:
+          description: work_status of the worker with respect to availability and on order fulfilment
+          anyOf:
+          - $ref: '#/components/schemas/DriverStatus1'
+        distance:
+          type:
+          - number
+          - 'null'
+          description: Distance of the nearest location from the requested location in meters; null if no location was found. For eta search_type its the actual drive distance, for region search_type its the haversine distance.
+        duration:
+          type:
+          - number
+          - 'null'
+          description: Time needed to reach the nearest location in seconds; null if no location was found, only for eta search_type.
+        ongoing_route:
+          description: Ongoing route summary (only present if workers has any ongoing route and request has `include_on_route` as true).
+          anyOf:
+          - $ref: '#/components/schemas/NearbyOngoingRoute'
+      required:
+      - device_id
+      - location
+    NearbyOrder1:
+      type: object
+      properties:
+        destination:
+          description: Destination location around which to search drivers. As of right now, only 'Point' is supported.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDestination1'
+        order_id:
+          type:
+          - string
+          - 'null'
+          description: Optional order id used to search nearby drivers for.
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Optional order metadata.
+          additionalProperties: {}
+      required:
+      - destination
+    NearbyWorker:
+      type: object
+      properties:
+        device:
+          description: Device related information of the worker.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDevice'
+        location:
+          description: Location of the worker.
+          allOf:
+          - $ref: '#/components/schemas/PointLocationGeometry'
+        worker_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique customer provided identifier for a worker
+        name:
+          type:
+          - string
+          - 'null'
+          description: Name of the worker
+        ops_group_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique identifier for an Ops Group to which the worker belongs
+        product_types:
+          type:
+          - array
+          - 'null'
+          description: List of product types used for worker matching during order planning
+          items:
+            type: string
+        profile:
+          type:
+          - object
+          - 'null'
+          description: Metadata associated with a worker
+          additionalProperties: {}
+        work_status:
+          description: work_status of the worker with respect to availability and on order fulfilment
+          anyOf:
+          - $ref: '#/components/schemas/DriverStatus1'
+        schedule:
+          type:
+          - array
+          - 'null'
+          description: List indicating the schedule of a worker for work assignment
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/DriverDateSchedule'
+            - $ref: '#/components/schemas/DriverRecurringSchedule'
+        created_at:
+          type:
+          - string
+          - 'null'
+          description: Timestamp at which the worker was created
+        home:
+          description: Worker home
+          anyOf:
+          - $ref: '#/components/schemas/LocationWithoutRadiusResponse'
+        unavailable_on:
+          type:
+          - array
+          - 'null'
+          description: List of dates (YYYY-MM-DD) on which the worker is not available
+          items:
+            type: string
+        location_permission:
+          description: Last known location permission on the worker's device
+          anyOf:
+          - $ref: '#/components/schemas/LocationPermission1'
+        battery:
+          description: Information of the battery status.
+          anyOf:
+          - $ref: '#/components/schemas/BatteryStatus1'
+        timezone:
+          type:
+          - string
+          - 'null'
+          description: Timezone of the worker
+        duration:
+          type:
+          - number
+          - 'null'
+          description: Time needed to reach the nearest location in seconds; null if no location was found, only for eta search_type.
+        distance:
+          type:
+          - number
+          - 'null'
+          description: Distance of the nearest location from the requested location in meters; null if no location was found. For eta search_type its the actual drive distance, for region search_type its the haversine distance.
+        ongoing_route:
+          description: Ongoing route summary (only present if workers has any ongoing route and request has include_on_route as true).
+          anyOf:
+          - $ref: '#/components/schemas/NearbyOngoingRoute'
+      required:
+      - device
+      - location
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
+    LocationWithoutRadiusResponse:
+      type: object
+      properties:
+        address:
+          type:
+          - string
+          - 'null'
+          description: Address for the location
+        geometry:
+          description: Location geometry
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometryResponse'
+      required:
+      - geometry
+    NearbyDriver:
+      type: object
+      properties:
+        device:
+          description: Device related information of the driver.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDevice1'
+        profile:
+          type: object
+          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
+          additionalProperties: {}
+        status:
+          description: Device status.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatus1'
+        location:
+          description: Location of the driver.
+          allOf:
+          - $ref: '#/components/schemas/NearbyLocation'
+        duration:
+          type:
+          - number
+          - 'null'
+          description: Time needed to reach the nearest location in seconds; null if no location was found, only for eta search_type.
+        distance:
+          type:
+          - number
+          - 'null'
+          description: Distance of the nearest location from the requested location in meters; null if no location was found. For eta search_type its the actual drive distance, for region search_type its the haversine distance.
+        ongoing_trip:
+          description: Ongoing trip summary (only present if device has any ongoing trip and request has include_on_trip as true).
+          anyOf:
+          - $ref: '#/components/schemas/NearbyOngoingTrip'
+      required:
+      - device
+      - location
+      - profile
+      - status
+    NearbyDeviceStatusData:
+      type: object
+      properties:
+        recorded_at:
+          type:
+          - string
+          - 'null'
+          description: ISO 8601 date when the device status was recorded.
+        activity:
+          type:
+          - string
+          - 'null'
+          description: Device activity (optional). If available, can be one of stop, walk, or drive.
+        reason:
+          type:
+          - string
+          - 'null'
+          description: 'For inactive devices only. Can be one of: location_permissions_denied, location_services_disabled, motion_activity_permissions_denied, motion_activity_services_disabled, motion_activity_services_unavailable, tracking_stopped, tracking_service_terminated, uninstalled.'
+    NearbyDestination:
+      type: object
+      properties:
+        geometry:
+          description: Destination geometry, As of right now, only 'Point' is supported.
+          anyOf:
+          - $ref: '#/components/schemas/LocationGeometry'
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Optional place handle used to search nearby workers for. `geometry` will be derived from place handle and should not provided with this parameter.
+    PointLocationGeometry:
+      type: object
+      properties:
+        type:
+          enum:
+          - Point
+          description: Point Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude].
+          items:
+            type: number
+      required:
+      - coordinates
+      - type
+    NearbyResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+          description: Unique identifier for the nearby request.
+        workers:
+          type: array
+          description: List of worker objects.
+          items:
+            $ref: '#/components/schemas/NearbyWorker'
+        summary:
+          description: Summary of the nearby request.
+          allOf:
+          - $ref: '#/components/schemas/NearbySummary'
+      required:
+      - request_id
+      - summary
+      - workers
+    DriverStatus1:
+      type: object
+      properties:
+        tracking:
+          type: boolean
+          description: Flag indicating whether the worker is currently on work
+        available:
+          type: boolean
+          description: Flag indicating if the worker is available for work
+      required:
+      - available
+      - tracking
+    NearbyOrder:
+      type: object
+      properties:
+        destination:
+          description: Destination location around which to search workers.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyDestination'
+        order_handle:
+          type:
+          - string
+          - 'null'
+          description: Optional order handle used to search nearby workers for, this can later be used for tracking and associate nearby requests with corresponding orders
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Optional order metadata.
+          additionalProperties: {}
+    NearbyAggregates:
+      type: object
+      properties:
+        total_requests:
+          type: integer
+          description: Total number of nearby search requests performed. This is only present when the request is made with aggregate=true.
+        avg_workers_per_request:
+          type: number
+          description: Average number of workers returned per nearby search request. This is only present when the request is made with aggregate=true.
+        unique_workers:
+          type: integer
+          description: Total number of unique workers returned across all nearby search requests. This is only present when the request is made with aggregate=true.
+        request_with_workers:
+          type: integer
+          description: Total number of nearby search requests that returned at least one worker. This is only present when the request is made with aggregate=true.
+      required:
+      - avg_workers_per_request
+      - request_with_workers
+      - total_requests
+      - unique_workers
+    NearbyDeviceStatusData1:
+      type: object
+      properties:
+        recorded_at:
+          type:
+          - string
+          - 'null'
+          description: ISO 8601 date when the device status was recorded.
+        activity:
+          type:
+          - string
+          - 'null'
+          description: Device activity (optional). If available, can be one of stop, walk, or drive.
+        reason:
+          type:
+          - string
+          - 'null'
+          description: 'For inactive devices only. Can be one of: location_permissions_denied, location_services_disabled, motion_activity_permissions_denied, motion_activity_services_disabled, motion_activity_services_unavailable, tracking_stopped, tracking_service_terminated, uninstalled.'
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    TokenAuth:
+      type: http
+      scheme: bearer
+    BearerAuth:
+      type: http
+      scheme: bearer
