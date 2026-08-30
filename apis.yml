@@ -161,6 +161,8 @@ apis:
   humanURL: https://hypertrack.com/reference/get-orders
   baseURL: https://v3.api.hypertrack.com
   tags:
+  - Order
+  tags_raw:
   - Orders
   properties:
   - type: OpenAPI
