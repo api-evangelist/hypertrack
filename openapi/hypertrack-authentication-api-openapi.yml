@@ -19,9 +19,7 @@ paths:
       - Authentication
       operationId: postOauthToken
       summary: Create access token
-      description: 'Exchange your `client_id` and `client_secret` for a short-lived bearer token using the OAuth 2.0 `client_credentials` grant. Send the returned `access_token` as `Authorization: Bearer <access_token>` on all API requests.
-
-        '
+      description: 'Exchange your `client_id` and `client_secret` for a short-lived bearer token using the OAuth 2.0 `client_credentials` grant. Send the returned `access_token` as `Authorization: Bearer ` on all API requests.'
       requestBody:
         required: true
         content:
@@ -72,9 +70,7 @@ paths:
       - Authentication
       operationId: postOauthEmbedToken
       summary: Secure embed view
-      description: 'Exchange an embeddable view URL for a short-lived secure URL with an access token appended, for safely embedding HyperTrack views (such as an order view or dashboard) in your own UI. Authenticate with HTTP Basic auth using your account ID and secret key.
-
-        '
+      description: Exchange an embeddable view URL for a short-lived secure URL with an access token appended, for safely embedding HyperTrack views (such as an order view or dashboard) in your own UI. Authenticate with HTTP Basic auth using your account ID and secret key.
       requestBody:
         required: true
         content:

@@ -1,0 +1,38 @@
+{
+  "provider": "hypertrack",
+  "sources": [
+    "_original/hypertrack-openapi.yaml"
+  ],
+  "outputs": [
+    "hypertrack-authentication-api-openapi.yml",
+    "hypertrack-export-api-openapi.yml",
+    "hypertrack-geotags-api-openapi.yml",
+    "hypertrack-nearby-api-openapi.yml",
+    "hypertrack-orders-api-openapi.yml",
+    "hypertrack-places-api-openapi.yml",
+    "hypertrack-tracking-api-openapi.yml",
+    "hypertrack-visits-api-openapi.yml",
+    "hypertrack-workerexport-api-openapi.yml",
+    "hypertrack-workers-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "hypertrack-openapi.yaml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "hypertrack-authentication-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-export-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-geotags-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-nearby-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-orders-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-places-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-tracking-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-visits-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-workerexport-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hypertrack-workers-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

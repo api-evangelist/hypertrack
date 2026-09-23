@@ -46,6 +46,8 @@ paths:
       security:
       - BasicAuth: []
       - TokenAuth: []
+      operationId: postOrdersExport
+      x-operation-id-source: derived
   /orders/export/{job_id}:
     get:
       parameters:
@@ -80,8 +82,25 @@ paths:
       security:
       - BasicAuth: []
       - TokenAuth: []
+      operationId: getOrdersExportByJobId
+      x-operation-id-source: derived
 components:
   schemas:
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
     OrderExportRequest:
       type: object
       properties:
@@ -381,22 +400,6 @@ components:
           description: Optional list of email addresses to send the export download link. Falls back to the account email when omitted.
           items:
             type: string
-    OrderExportResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: Unique identifier for the export job
-        status:
-          type: string
-          description: 'Current status of the export job: pending, processing, completed, failed'
-        message:
-          type: string
-          description: Human-readable message about the job
-      required:
-      - job_id
-      - message
-      - status
     OrderExportStatusResponse:
       type: object
       properties:
@@ -445,21 +448,22 @@ components:
         message:
           type: string
       type: object
-    ValidationError:
+    OrderExportResponse:
+      type: object
       properties:
-        detail:
-          type: object
-          properties:
-            <location>:
-              type: object
-              properties:
-                <field_name>:
-                  type: array
-                  items:
-                    type: string
+        job_id:
+          type: string
+          description: Unique identifier for the export job
+        status:
+          type: string
+          description: 'Current status of the export job: pending, processing, completed, failed'
         message:
           type: string
-      type: object
+          description: Human-readable message about the job
+      required:
+      - job_id
+      - message
+      - status
     Error:
       type: object
       properties:

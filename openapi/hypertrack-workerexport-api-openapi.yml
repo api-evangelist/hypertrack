@@ -46,6 +46,8 @@ paths:
       security:
       - BasicAuth: []
       - TokenAuth: []
+      operationId: postWorkersExport
+      x-operation-id-source: derived
   /workers/export/{job_id}:
     get:
       parameters:
@@ -80,8 +82,66 @@ paths:
       security:
       - BasicAuth: []
       - TokenAuth: []
+      operationId: getWorkersExportByJobId
+      x-operation-id-source: derived
 components:
   schemas:
+    WorkerExportStatusResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: Unique identifier for the export job
+        status:
+          type: string
+          description: 'Current status: pending, processing, completed, failed'
+        rows_processed:
+          type: integer
+          default: 0
+          description: Number of rows processed so far
+        presigned_url:
+          type:
+          - string
+          - 'null'
+          description: Presigned S3 URL to download the export (available when completed)
+        error_message:
+          type:
+          - string
+          - 'null'
+          description: Error message if job failed
+        created_at:
+          type:
+          - string
+          - 'null'
+          description: Job creation timestamp (ISO 8601)
+        started_at:
+          type:
+          - string
+          - 'null'
+          description: Job start timestamp (ISO 8601)
+        completed_at:
+          type:
+          - string
+          - 'null'
+          description: Job completion timestamp (ISO 8601)
+      required:
+      - job_id
+      - status
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
     WorkerExportResponse:
       type: object
       properties:
@@ -98,6 +158,13 @@ components:
       - job_id
       - message
       - status
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
     WorkerExportRequest:
       type: object
       properties:
@@ -238,28 +305,6 @@ components:
           description: Optional list of email addresses to send the export download link. Falls back to the account email when omitted.
           items:
             type: string
-    HTTPError:
-      properties:
-        detail:
-          type: object
-        message:
-          type: string
-      type: object
-    ValidationError:
-      properties:
-        detail:
-          type: object
-          properties:
-            <location>:
-              type: object
-              properties:
-                <field_name>:
-                  type: array
-                  items:
-                    type: string
-        message:
-          type: string
-      type: object
     Error:
       type: object
       properties:
@@ -272,47 +317,6 @@ components:
         detail:
           type: string
           description: error detail
-    WorkerExportStatusResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: Unique identifier for the export job
-        status:
-          type: string
-          description: 'Current status: pending, processing, completed, failed'
-        rows_processed:
-          type: integer
-          default: 0
-          description: Number of rows processed so far
-        presigned_url:
-          type:
-          - string
-          - 'null'
-          description: Presigned S3 URL to download the export (available when completed)
-        error_message:
-          type:
-          - string
-          - 'null'
-          description: Error message if job failed
-        created_at:
-          type:
-          - string
-          - 'null'
-          description: Job creation timestamp (ISO 8601)
-        started_at:
-          type:
-          - string
-          - 'null'
-          description: Job start timestamp (ISO 8601)
-        completed_at:
-          type:
-          - string
-          - 'null'
-          description: Job completion timestamp (ISO 8601)
-      required:
-      - job_id
-      - status
   securitySchemes:
     BasicAuth:
       type: http
