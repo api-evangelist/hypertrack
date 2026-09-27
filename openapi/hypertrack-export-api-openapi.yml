@@ -86,6 +86,75 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: error code for the type of error
+        title:
+          type: string
+          description: error title
+        detail:
+          type: string
+          description: error detail
+    OrderExportResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: Unique identifier for the export job
+        status:
+          type: string
+          description: 'Current status of the export job: pending, processing, completed, failed'
+        message:
+          type: string
+          description: Human-readable message about the job
+      required:
+      - job_id
+      - message
+      - status
+    OrderExportStatusResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: Unique identifier for the export job
+        status:
+          type: string
+          description: 'Current status: pending, processing, completed, failed'
+        rows_processed:
+          type: integer
+          default: 0
+          description: Number of rows processed so far
+        presigned_url:
+          type:
+          - string
+          - 'null'
+          description: Presigned S3 URL to download the export (available when completed)
+        error_message:
+          type:
+          - string
+          - 'null'
+          description: Error message if job failed
+        created_at:
+          type:
+          - string
+          - 'null'
+          description: Job creation timestamp (ISO 8601)
+        started_at:
+          type:
+          - string
+          - 'null'
+          description: Job start timestamp (ISO 8601)
+        completed_at:
+          type:
+          - string
+          - 'null'
+          description: Job completion timestamp (ISO 8601)
+      required:
+      - job_id
+      - status
     ValidationError:
       properties:
         detail:
@@ -98,6 +167,13 @@ components:
                   type: array
                   items:
                     type: string
+        message:
+          type: string
+      type: object
+    HTTPError:
+      properties:
+        detail:
+          type: object
         message:
           type: string
       type: object
@@ -400,82 +476,6 @@ components:
           description: Optional list of email addresses to send the export download link. Falls back to the account email when omitted.
           items:
             type: string
-    OrderExportStatusResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: Unique identifier for the export job
-        status:
-          type: string
-          description: 'Current status: pending, processing, completed, failed'
-        rows_processed:
-          type: integer
-          default: 0
-          description: Number of rows processed so far
-        presigned_url:
-          type:
-          - string
-          - 'null'
-          description: Presigned S3 URL to download the export (available when completed)
-        error_message:
-          type:
-          - string
-          - 'null'
-          description: Error message if job failed
-        created_at:
-          type:
-          - string
-          - 'null'
-          description: Job creation timestamp (ISO 8601)
-        started_at:
-          type:
-          - string
-          - 'null'
-          description: Job start timestamp (ISO 8601)
-        completed_at:
-          type:
-          - string
-          - 'null'
-          description: Job completion timestamp (ISO 8601)
-      required:
-      - job_id
-      - status
-    HTTPError:
-      properties:
-        detail:
-          type: object
-        message:
-          type: string
-      type: object
-    OrderExportResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: Unique identifier for the export job
-        status:
-          type: string
-          description: 'Current status of the export job: pending, processing, completed, failed'
-        message:
-          type: string
-          description: Human-readable message about the job
-      required:
-      - job_id
-      - message
-      - status
-    Error:
-      type: object
-      properties:
-        code:
-          type: string
-          description: error code for the type of error
-        title:
-          type: string
-          description: error title
-        detail:
-          type: string
-          description: error detail
   securitySchemes:
     BasicAuth:
       type: http

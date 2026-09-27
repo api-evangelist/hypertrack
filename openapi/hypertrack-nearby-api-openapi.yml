@@ -1216,169 +1216,61 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    NearbyAggregates:
+    DriverRecurringSchedule:
       type: object
       properties:
-        total_requests:
-          type: integer
-          description: Total number of nearby search requests performed. This is only present when the request is made with aggregate=true.
-        avg_workers_per_request:
-          type: number
-          description: Average number of workers returned per nearby search request. This is only present when the request is made with aggregate=true.
-        unique_workers:
-          type: integer
-          description: Total number of unique workers returned across all nearby search requests. This is only present when the request is made with aggregate=true.
-        request_with_workers:
-          type: integer
-          description: Total number of nearby search requests that returned at least one worker. This is only present when the request is made with aggregate=true.
+        start_time:
+          type: string
+          description: Start time represented by HH:mm of the worker's day schedule
+        end_time:
+          type: string
+          description: End time represented by HH:mm of the worker's day schedule
+        day_of_week:
+          type: string
+          enum:
+          - SUNDAY
+          - MONDAY
+          - TUESDAY
+          - WEDNESDAY
+          - THURSDAY
+          - FRIDAY
+          - SATURDAY
+          description: Day of the week when the worker is available for work
+        ops_group_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique identifier for an Ops Group
+        priority:
+          type:
+          - integer
+          - 'null'
+          description: Priority of schedule of a worker
       required:
-      - avg_workers_per_request
-      - request_with_workers
-      - total_requests
-      - unique_workers
-    NearbyLocation:
+      - day_of_week
+      - end_time
+      - start_time
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: error code for the type of error
+        title:
+          type: string
+          description: error title
+        detail:
+          type: string
+          description: error detail
+    NearbyDestination1:
       type: object
       properties:
         geometry:
-          type: object
-          description: Location geometry. As of right now, only Point is supported.
-          additionalProperties: {}
-        type:
-          type: string
-          default: Point
+          description: Destination location around which to search drivers. As of right now, only 'Point' is supported.
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometry'
       required:
       - geometry
-    NearbyDevice1:
-      type: object
-      properties:
-        device_id:
-          type: string
-          description: Device id of the device.
-        info:
-          description: device_info. Same fields support as in devices API.
-          allOf:
-          - $ref: '#/components/schemas/NearbyDeviceInfo1'
-        profile:
-          type: object
-          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
-          additionalProperties: {}
-        status:
-          description: Device status.
-          allOf:
-          - $ref: '#/components/schemas/NearbyDeviceStatus1'
-      required:
-      - device_id
-      - info
-      - profile
-      - status
-    NearbySummary:
-      type: object
-      properties:
-        total_workers:
-          type: integer
-          description: Total number of workers found in nearby region matching the filters.
-        processed_workers:
-          type: integer
-          description: Number of workers processed and returned in workers response.
-        unprocessed_workers:
-          type: integer
-          description: Number of workers that have not been processed.
-        outside_region_workers:
-          type: integer
-          description: Number of workers outside nearby region (default value of search_filter.search_radius), only returned if worker_list filter is specified.
-        no_route_workers:
-          type: integer
-          description: Number of workers for whom no route was found to the destination, only returned if worker_list filter is specified.
-      required:
-      - no_route_workers
-      - outside_region_workers
-      - processed_workers
-      - total_workers
-      - unprocessed_workers
-    NearbyDevice:
-      type: object
-      properties:
-        device_id:
-          type: string
-          description: Device id of the device.
-        info:
-          description: device_info. Same fields support as in devices API.
-          anyOf:
-          - $ref: '#/components/schemas/NearbyDeviceInfo'
-        profile:
-          type:
-          - object
-          - 'null'
-          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
-          additionalProperties: {}
-        status:
-          description: Device status.
-          anyOf:
-          - $ref: '#/components/schemas/NearbyDeviceStatus'
-      required:
-      - device_id
-    SearchFilter1:
-      type: object
-      properties:
-        search_radius:
-          type:
-          - integer
-          - 'null'
-          maximum: 160934
-          description: Maximum distance (haversine) in meters of drivers from order destination, maximum of 160934 meters (100 miles).
-        include_on_trip:
-          type:
-          - boolean
-          - 'null'
-          description: True when on trip drivers are also needed as part of response (default value is false).
-        driver_profile:
-          type:
-          - object
-          - 'null'
-          description: Used to specify a filter that is applied on the drivers returned in a nearby search result; For example, this profile filter can represent attributes describing your gig workers, such as a team assignment, gig category, etc.
-          additionalProperties: {}
-        driver_list:
-          type:
-          - array
-          - 'null'
-          minItems: 1
-          description: Array of device ids whose estimates to order destination will be calculated. Only for search type 'eta', if present other filters are not allowed.
-          items:
-            type: string
-            format: uuid
-    SearchFilter:
-      type: object
-      properties:
-        include_on_route:
-          type:
-          - boolean
-          - 'null'
-          description: True when on route workers are also needed as part of response (default value is false).
-        worker_profile:
-          type:
-          - object
-          - 'null'
-          description: Used to specify a filter that is applied on the workers returned in a nearby search result; For example, this profile filter can represent attributes describing your gig workers, such as a team assignment, gig category, etc.
-          additionalProperties: {}
-        worker_list:
-          type:
-          - array
-          - 'null'
-          minItems: 1
-          description: Array of worker handles whose estimates to order destination will be calculated. Only for search type 'eta', if present only `search_radius` filter is allowed, others are not allowed.
-          items:
-            type: string
-        work_status:
-          description: Optional filter to specify the work status of workers to include in the search results.
-          anyOf:
-          - $ref: '#/components/schemas/WorkStatus'
-        search_radius:
-          type:
-          - integer
-          - 'null'
-          default: 160934
-          maximum: 160934
-          description: Maximum distance (haversine) in meters of workers from order destination, maximum of 160934 meters (100 miles).
     NearbyDeviceInfo:
       type: object
       properties:
@@ -1427,105 +1319,6 @@ components:
           - string
           - 'null'
           description: Name of the device.
-    NearbyRequest1:
-      type: object
-      properties:
-        order:
-          $ref: '#/components/schemas/NearbyOrder1'
-        search_type:
-          type: string
-          enum:
-          - eta
-          - region
-        search_filter:
-          anyOf:
-          - $ref: '#/components/schemas/SearchFilter1'
-        limit:
-          type:
-          - integer
-          - 'null'
-          maximum: 1000
-      required:
-      - order
-      - search_type
-    NearbyResponse:
-      type: object
-      properties:
-        request_id:
-          type: string
-          description: Unique identifier for the nearby request.
-        workers:
-          type: array
-          description: List of worker objects.
-          items:
-            $ref: '#/components/schemas/NearbyWorker'
-        summary:
-          description: Summary of the nearby request.
-          allOf:
-          - $ref: '#/components/schemas/NearbySummary'
-      required:
-      - request_id
-      - summary
-      - workers
-    NearbySearchListResponse:
-      type: object
-      properties:
-        requests:
-          type: array
-          description: List of nearby searches performed.
-          items:
-            $ref: '#/components/schemas/NearbySearchRequestSummary'
-        pagination_token:
-          type:
-          - string
-          - 'null'
-          description: Token to be used for pagination. If present, it indicates that there are more pages of results available.
-        aggregates:
-          description: Aggregates for nearby search requests. This is only present when the request is made with aggregate=true.
-          anyOf:
-          - $ref: '#/components/schemas/NearbyAggregates'
-      required:
-      - requests
-    NearbyOrder:
-      type: object
-      properties:
-        destination:
-          description: Destination location around which to search workers.
-          anyOf:
-          - $ref: '#/components/schemas/NearbyDestination'
-        order_handle:
-          type:
-          - string
-          - 'null'
-          description: Optional order handle used to search nearby workers for, this can later be used for tracking and associate nearby requests with corresponding orders
-        metadata:
-          type:
-          - object
-          - 'null'
-          description: Optional order metadata.
-          additionalProperties: {}
-    NearbyDeviceStatus1:
-      type: object
-      properties:
-        value:
-          type: string
-          description: Can be one of active, inactive, disconnected, available or unavailable. Please read here to understand how HyperTrack tracks device status.
-        data:
-          description: Extra information about device status.
-          allOf:
-          - $ref: '#/components/schemas/NearbyDeviceStatusData1'
-      required:
-      - data
-      - value
-    NearbyDestination1:
-      type: object
-      properties:
-        geometry:
-          description: Destination location around which to search drivers. As of right now, only 'Point' is supported.
-          allOf:
-          - $ref: '#/components/schemas/LocationGeometry'
-      required:
-      - geometry
     NearbyOrder1:
       type: object
       properties:
@@ -1546,6 +1339,144 @@ components:
           additionalProperties: {}
       required:
       - destination
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
+    NearbyOngoingRoute:
+      type: object
+      properties:
+        route_handle:
+          type: string
+          description: route handle which is still ongoing (only present if worker has any ongoing route and request has include_on_route as true).
+        destination:
+          type: object
+          description: Destination geometry for Ongoing route (only present if workers has any ongoing route and request has include_on_route as true).
+          additionalProperties: {}
+        remaining_distance:
+          type: integer
+          description: Distance (in meters) workers needs to travel to reach route destination (only present if workers has any ongoing route and request has include_on_route as true).
+        remaining_duration:
+          type: integer
+          description: Time (in seconds) needed for workers to travel to reach route destination (only present if workers has any ongoing route and request has include_on_route as true).
+      required:
+      - destination
+      - remaining_distance
+      - remaining_duration
+      - route_handle
+    BatteryStatus1:
+      type: object
+      properties:
+        battery_percent:
+          type: integer
+          description: Integer indicating the percent of charge on the battery.
+        recorded_at:
+          type: string
+          description: Timestamp of the reading
+      required:
+      - battery_percent
+      - recorded_at
+    DriverStatus1:
+      type: object
+      properties:
+        tracking:
+          type: boolean
+          description: Flag indicating whether the worker is currently on work
+        available:
+          type: boolean
+          description: Flag indicating if the worker is available for work
+      required:
+      - available
+      - tracking
+    LocationPermission1:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+          - always
+          - foreground_only
+          - never
+          - location_imprecise
+          - unknown
+          description: State of location permission
+        recorded_at:
+          type:
+          - string
+          - 'null'
+          description: Time stamp of the last known location permission
+      required:
+      - state
+    NearbyLocation:
+      type: object
+      properties:
+        geometry:
+          type: object
+          description: Location geometry. As of right now, only Point is supported.
+          additionalProperties: {}
+        type:
+          type: string
+          default: Point
+      required:
+      - geometry
+    NearbyAggregates:
+      type: object
+      properties:
+        total_requests:
+          type: integer
+          description: Total number of nearby search requests performed. This is only present when the request is made with aggregate=true.
+        avg_workers_per_request:
+          type: number
+          description: Average number of workers returned per nearby search request. This is only present when the request is made with aggregate=true.
+        unique_workers:
+          type: integer
+          description: Total number of unique workers returned across all nearby search requests. This is only present when the request is made with aggregate=true.
+        request_with_workers:
+          type: integer
+          description: Total number of nearby search requests that returned at least one worker. This is only present when the request is made with aggregate=true.
+      required:
+      - avg_workers_per_request
+      - request_with_workers
+      - total_requests
+      - unique_workers
+    NearbyDeviceStatus1:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Can be one of active, inactive, disconnected, available or unavailable. Please read here to understand how HyperTrack tracks device status.
+        data:
+          description: Extra information about device status.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatusData1'
+      required:
+      - data
+      - value
+    NearbyDevice:
+      type: object
+      properties:
+        device_id:
+          type: string
+          description: Device id of the device.
+        info:
+          description: device_info. Same fields support as in devices API.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyDeviceInfo'
+        profile:
+          type:
+          - object
+          - 'null'
+          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
+          additionalProperties: {}
+        status:
+          description: Device status.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatus'
+      required:
+      - device_id
     NearbyWorkerSummary:
       type: object
       properties:
@@ -1593,21 +1524,148 @@ components:
       required:
       - device_id
       - location
-    NearbyResponse1:
+    NearbyResponse:
       type: object
       properties:
-        drivers:
+        request_id:
+          type: string
+          description: Unique identifier for the nearby request.
+        workers:
           type: array
-          description: List of driver objects.
+          description: List of worker objects.
           items:
-            $ref: '#/components/schemas/NearbyDriver'
+            $ref: '#/components/schemas/NearbyWorker'
         summary:
           description: Summary of the nearby request.
           allOf:
-          - $ref: '#/components/schemas/NearbySummary1'
+          - $ref: '#/components/schemas/NearbySummary'
       required:
-      - drivers
+      - request_id
       - summary
+      - workers
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
+    NearbySearchRequestSummary:
+      type: object
+      properties:
+        request_id:
+          type: string
+          description: Unique identifier for the nearby search request.
+        request:
+          description: Nearby search request.
+          allOf:
+          - $ref: '#/components/schemas/NearbyRequest'
+        created_on:
+          type: string
+          description: Timestamp at which the nearby search request was created. This is in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
+        workers:
+          type:
+          - array
+          - 'null'
+          description: Nearby search response.
+          items:
+            $ref: '#/components/schemas/NearbyWorkerSummary'
+        summary:
+          description: Summary of the nearby search results.
+          anyOf:
+          - $ref: '#/components/schemas/NearbySummary'
+        timezone:
+          type:
+          - string
+          - 'null'
+          description: Timezone of the worker
+      required:
+      - created_on
+      - request
+      - request_id
+    NearbySearchListResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          description: List of nearby searches performed.
+          items:
+            $ref: '#/components/schemas/NearbySearchRequestSummary'
+        pagination_token:
+          type:
+          - string
+          - 'null'
+          description: Token to be used for pagination. If present, it indicates that there are more pages of results available.
+        aggregates:
+          description: Aggregates for nearby search requests. This is only present when the request is made with aggregate=true.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyAggregates'
+      required:
+      - requests
+    NearbyDestination:
+      type: object
+      properties:
+        geometry:
+          description: Destination geometry, As of right now, only 'Point' is supported.
+          anyOf:
+          - $ref: '#/components/schemas/LocationGeometry'
+        place_handle:
+          type:
+          - string
+          - 'null'
+          description: Optional place handle used to search nearby workers for. `geometry` will be derived from place handle and should not provided with this parameter.
+    NearbySummary1:
+      type: object
+      properties:
+        total_drivers:
+          type: integer
+          description: Total number of drivers found in nearby region matching the filters.
+        processed_drivers:
+          type: integer
+          description: Number of drivers processed and returned in drivers response.
+        unprocessed_drivers:
+          type: integer
+          description: Number of drivers that have not been processed.
+        outside_region_drivers:
+          type: integer
+          description: Number of drivers outside nearby region (default value of search_filter.search_radius), only returned if driver_list filter is specified.
+      required:
+      - outside_region_drivers
+      - processed_drivers
+      - total_drivers
+      - unprocessed_drivers
+    NearbySummary:
+      type: object
+      properties:
+        total_workers:
+          type: integer
+          description: Total number of workers found in nearby region matching the filters.
+        processed_workers:
+          type: integer
+          description: Number of workers processed and returned in workers response.
+        unprocessed_workers:
+          type: integer
+          description: Number of workers that have not been processed.
+        outside_region_workers:
+          type: integer
+          description: Number of workers outside nearby region (default value of search_filter.search_radius), only returned if worker_list filter is specified.
+        no_route_workers:
+          type: integer
+          description: Number of workers for whom no route was found to the destination, only returned if worker_list filter is specified.
+      required:
+      - no_route_workers
+      - outside_region_workers
+      - processed_workers
+      - total_workers
+      - unprocessed_workers
     NearbyDeviceStatusData:
       type: object
       properties:
@@ -1626,67 +1684,112 @@ components:
           - string
           - 'null'
           description: 'For inactive devices only. Can be one of: location_permissions_denied, location_services_disabled, motion_activity_permissions_denied, motion_activity_services_disabled, motion_activity_services_unavailable, tracking_stopped, tracking_service_terminated, uninstalled.'
-    DriverRecurringSchedule:
+    NearbyDriver:
       type: object
       properties:
-        start_time:
-          type: string
-          description: Start time represented by HH:mm of the worker's day schedule
-        end_time:
-          type: string
-          description: End time represented by HH:mm of the worker's day schedule
-        day_of_week:
-          type: string
-          enum:
-          - SUNDAY
-          - MONDAY
-          - TUESDAY
-          - WEDNESDAY
-          - THURSDAY
-          - FRIDAY
-          - SATURDAY
-          description: Day of the week when the worker is available for work
-        ops_group_handle:
+        device:
+          description: Device related information of the driver.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDevice1'
+        profile:
+          type: object
+          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
+          additionalProperties: {}
+        status:
+          description: Device status.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatus1'
+        location:
+          description: Location of the driver.
+          allOf:
+          - $ref: '#/components/schemas/NearbyLocation'
+        duration:
+          type:
+          - number
+          - 'null'
+          description: Time needed to reach the nearest location in seconds; null if no location was found, only for eta search_type.
+        distance:
+          type:
+          - number
+          - 'null'
+          description: Distance of the nearest location from the requested location in meters; null if no location was found. For eta search_type its the actual drive distance, for region search_type its the haversine distance.
+        ongoing_trip:
+          description: Ongoing trip summary (only present if device has any ongoing trip and request has include_on_trip as true).
+          anyOf:
+          - $ref: '#/components/schemas/NearbyOngoingTrip'
+      required:
+      - device
+      - location
+      - profile
+      - status
+    NearbyOrder:
+      type: object
+      properties:
+        destination:
+          description: Destination location around which to search workers.
+          anyOf:
+          - $ref: '#/components/schemas/NearbyDestination'
+        order_handle:
           type:
           - string
           - 'null'
-          description: Unique identifier for an Ops Group
-        priority:
+          description: Optional order handle used to search nearby workers for, this can later be used for tracking and associate nearby requests with corresponding orders
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Optional order metadata.
+          additionalProperties: {}
+    NearbyRequest1:
+      type: object
+      properties:
+        order:
+          $ref: '#/components/schemas/NearbyOrder1'
+        search_type:
+          type: string
+          enum:
+          - eta
+          - region
+        search_filter:
+          anyOf:
+          - $ref: '#/components/schemas/SearchFilter1'
+        limit:
           type:
           - integer
           - 'null'
-          description: Priority of schedule of a worker
+          maximum: 1000
       required:
-      - day_of_week
-      - end_time
-      - start_time
-    BatteryStatus1:
+      - order
+      - search_type
+    NearbyResponse1:
       type: object
       properties:
-        battery_percent:
-          type: integer
-          description: Integer indicating the percent of charge on the battery.
-        recorded_at:
-          type: string
-          description: Timestamp of the reading
-      required:
-      - battery_percent
-      - recorded_at
-    PointLocationGeometry:
-      type: object
-      properties:
-        type:
-          enum:
-          - Point
-          description: Point Geometry type
-        coordinates:
+        drivers:
           type: array
-          description: Location coordinates represented as [longitude, latitude].
+          description: List of driver objects.
           items:
-            type: number
+            $ref: '#/components/schemas/NearbyDriver'
+        summary:
+          description: Summary of the nearby request.
+          allOf:
+          - $ref: '#/components/schemas/NearbySummary1'
       required:
-      - coordinates
-      - type
+      - drivers
+      - summary
+    LocationWithoutRadiusResponse:
+      type: object
+      properties:
+        address:
+          type:
+          - string
+          - 'null'
+          description: Address for the location
+        geometry:
+          description: Location geometry
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometryResponse'
+      required:
+      - geometry
     NearbyDeviceInfo1:
       type: object
       properties:
@@ -1727,76 +1830,24 @@ components:
       - os_version
       - sdk_version
       - timezone
-    DriverDateSchedule:
+    NearbyDeviceStatusData1:
       type: object
       properties:
-        start_time:
-          type: string
-          description: Start time represented by HH:mm of the worker's day schedule
-        end_time:
-          type: string
-          description: End time represented by HH:mm of the worker's day schedule
-        date:
-          type: string
-          description: Date on which the worker is available for work
-        ops_group_handle:
-          type:
-          - string
-          - 'null'
-          description: Unique identifier for an Ops Group
-        priority:
-          type:
-          - integer
-          - 'null'
-          description: Priority of schedule of a worker
-      required:
-      - date
-      - end_time
-      - start_time
-    LocationPermission1:
-      type: object
-      properties:
-        state:
-          type: string
-          enum:
-          - always
-          - foreground_only
-          - never
-          - location_imprecise
-          - unknown
-          description: State of location permission
         recorded_at:
           type:
           - string
           - 'null'
-          description: Time stamp of the last known location permission
-      required:
-      - state
-    NearbyDestination:
-      type: object
-      properties:
-        geometry:
-          description: Destination geometry, As of right now, only 'Point' is supported.
-          anyOf:
-          - $ref: '#/components/schemas/LocationGeometry'
-        place_handle:
+          description: ISO 8601 date when the device status was recorded.
+        activity:
           type:
           - string
           - 'null'
-          description: Optional place handle used to search nearby workers for. `geometry` will be derived from place handle and should not provided with this parameter.
-    WorkStatus:
-      type: object
-      properties:
-        tracking:
+          description: Device activity (optional). If available, can be one of stop, walk, or drive.
+        reason:
           type:
-          - boolean
+          - string
           - 'null'
-          description: Indicates if the worker is currently being tracked.
-        available:
-          type:
-          - boolean
-          - 'null'
-          description: Indicates if the worker is available for new tasks.
+          description: 'For inactive devices only. Can be one of: location_permissions_denied, location_services_disabled, motion_activity_permissions_denied, motion_activity_services_disabled, motion_activity_services_unavailable, tracking_stopped, tracking_service_terminated, uninstalled.'
     NearbyWorker:
       type: object
       properties:
@@ -1895,165 +1946,6 @@ components:
       required:
       - device
       - location
-    NearbyDeviceStatusData1:
-      type: object
-      properties:
-        recorded_at:
-          type:
-          - string
-          - 'null'
-          description: ISO 8601 date when the device status was recorded.
-        activity:
-          type:
-          - string
-          - 'null'
-          description: Device activity (optional). If available, can be one of stop, walk, or drive.
-        reason:
-          type:
-          - string
-          - 'null'
-          description: 'For inactive devices only. Can be one of: location_permissions_denied, location_services_disabled, motion_activity_permissions_denied, motion_activity_services_disabled, motion_activity_services_unavailable, tracking_stopped, tracking_service_terminated, uninstalled.'
-    Error:
-      type: object
-      properties:
-        code:
-          type: string
-          description: error code for the type of error
-        title:
-          type: string
-          description: error title
-        detail:
-          type: string
-          description: error detail
-    NearbySearchRequestSummary:
-      type: object
-      properties:
-        request_id:
-          type: string
-          description: Unique identifier for the nearby search request.
-        request:
-          description: Nearby search request.
-          allOf:
-          - $ref: '#/components/schemas/NearbyRequest'
-        created_on:
-          type: string
-          description: Timestamp at which the nearby search request was created. This is in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-        workers:
-          type:
-          - array
-          - 'null'
-          description: Nearby search response.
-          items:
-            $ref: '#/components/schemas/NearbyWorkerSummary'
-        summary:
-          description: Summary of the nearby search results.
-          anyOf:
-          - $ref: '#/components/schemas/NearbySummary'
-        timezone:
-          type:
-          - string
-          - 'null'
-          description: Timezone of the worker
-      required:
-      - created_on
-      - request
-      - request_id
-    LocationGeometryResponse:
-      type: object
-      properties:
-        type:
-          type: string
-          description: Geometry type
-        coordinates:
-          type: array
-          description: Location coordinates represented as list of [longitude, latitude].
-          items: {}
-      required:
-      - coordinates
-      - type
-    NearbyOngoingRoute:
-      type: object
-      properties:
-        route_handle:
-          type: string
-          description: route handle which is still ongoing (only present if worker has any ongoing route and request has include_on_route as true).
-        destination:
-          type: object
-          description: Destination geometry for Ongoing route (only present if workers has any ongoing route and request has include_on_route as true).
-          additionalProperties: {}
-        remaining_distance:
-          type: integer
-          description: Distance (in meters) workers needs to travel to reach route destination (only present if workers has any ongoing route and request has include_on_route as true).
-        remaining_duration:
-          type: integer
-          description: Time (in seconds) needed for workers to travel to reach route destination (only present if workers has any ongoing route and request has include_on_route as true).
-      required:
-      - destination
-      - remaining_distance
-      - remaining_duration
-      - route_handle
-    DriverStatus1:
-      type: object
-      properties:
-        tracking:
-          type: boolean
-          description: Flag indicating whether the worker is currently on work
-        available:
-          type: boolean
-          description: Flag indicating if the worker is available for work
-      required:
-      - available
-      - tracking
-    LocationWithoutRadiusResponse:
-      type: object
-      properties:
-        address:
-          type:
-          - string
-          - 'null'
-          description: Address for the location
-        geometry:
-          description: Location geometry
-          allOf:
-          - $ref: '#/components/schemas/LocationGeometryResponse'
-      required:
-      - geometry
-    NearbyOngoingTrip:
-      type: object
-      properties:
-        trip_id:
-          type: string
-          description: Trip id which is still ongoing (only present if device has any ongoing trip and request has include_on_trip as true).
-        destination:
-          type: object
-          description: Destination geometry for Ongoing trip (only present if device has any ongoing trip and request has include_on_trip as true).
-          additionalProperties: {}
-        remaining_distance:
-          type: integer
-          description: Distance (in meters) device needs to travel to reach trip destination (only present if device has any ongoing trip and request has include_on_trip as true).
-        remaining_duration:
-          type: integer
-          description: Time (in seconds) needed for device to travel to reach trip destination (only present if device has any ongoing trip and request has include_on_trip as true).
-      required:
-      - destination
-      - remaining_distance
-      - remaining_duration
-      - trip_id
-    ValidationError:
-      properties:
-        detail:
-          type: object
-          properties:
-            <location>:
-              type: object
-              properties:
-                <field_name>:
-                  type: array
-                  items:
-                    type: string
-        message:
-          type: string
-      type: object
     LocationGeometry:
       type: object
       properties:
@@ -2070,71 +1962,6 @@ components:
       required:
       - coordinates
       - type
-    NearbyDriver:
-      type: object
-      properties:
-        device:
-          description: Device related information of the driver.
-          allOf:
-          - $ref: '#/components/schemas/NearbyDevice1'
-        profile:
-          type: object
-          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
-          additionalProperties: {}
-        status:
-          description: Device status.
-          allOf:
-          - $ref: '#/components/schemas/NearbyDeviceStatus1'
-        location:
-          description: Location of the driver.
-          allOf:
-          - $ref: '#/components/schemas/NearbyLocation'
-        duration:
-          type:
-          - number
-          - 'null'
-          description: Time needed to reach the nearest location in seconds; null if no location was found, only for eta search_type.
-        distance:
-          type:
-          - number
-          - 'null'
-          description: Distance of the nearest location from the requested location in meters; null if no location was found. For eta search_type its the actual drive distance, for region search_type its the haversine distance.
-        ongoing_trip:
-          description: Ongoing trip summary (only present if device has any ongoing trip and request has include_on_trip as true).
-          anyOf:
-          - $ref: '#/components/schemas/NearbyOngoingTrip'
-      required:
-      - device
-      - location
-      - profile
-      - status
-    HTTPError:
-      properties:
-        detail:
-          type: object
-        message:
-          type: string
-      type: object
-    NearbySummary1:
-      type: object
-      properties:
-        total_drivers:
-          type: integer
-          description: Total number of drivers found in nearby region matching the filters.
-        processed_drivers:
-          type: integer
-          description: Number of drivers processed and returned in drivers response.
-        unprocessed_drivers:
-          type: integer
-          description: Number of drivers that have not been processed.
-        outside_region_drivers:
-          type: integer
-          description: Number of drivers outside nearby region (default value of search_filter.search_radius), only returned if driver_list filter is specified.
-      required:
-      - outside_region_drivers
-      - processed_drivers
-      - total_drivers
-      - unprocessed_drivers
     NearbyDeviceStatus:
       type: object
       properties:
@@ -2148,6 +1975,29 @@ components:
       required:
       - data
       - value
+    NearbyDevice1:
+      type: object
+      properties:
+        device_id:
+          type: string
+          description: Device id of the device.
+        info:
+          description: device_info. Same fields support as in devices API.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceInfo1'
+        profile:
+          type: object
+          description: Device metadata submitted via Mobile SDKs (Android, iOS) or Devices API.
+          additionalProperties: {}
+        status:
+          description: Device status.
+          allOf:
+          - $ref: '#/components/schemas/NearbyDeviceStatus1'
+      required:
+      - device_id
+      - info
+      - profile
+      - status
     NearbyRequest:
       type: object
       properties:
@@ -2174,6 +2024,156 @@ components:
       required:
       - order
       - search_type
+    SearchFilter:
+      type: object
+      properties:
+        include_on_route:
+          type:
+          - boolean
+          - 'null'
+          description: True when on route workers are also needed as part of response (default value is false).
+        worker_profile:
+          type:
+          - object
+          - 'null'
+          description: Used to specify a filter that is applied on the workers returned in a nearby search result; For example, this profile filter can represent attributes describing your gig workers, such as a team assignment, gig category, etc.
+          additionalProperties: {}
+        worker_list:
+          type:
+          - array
+          - 'null'
+          minItems: 1
+          description: Array of worker handles whose estimates to order destination will be calculated. Only for search type 'eta', if present only `search_radius` filter is allowed, others are not allowed.
+          items:
+            type: string
+        work_status:
+          description: Optional filter to specify the work status of workers to include in the search results.
+          anyOf:
+          - $ref: '#/components/schemas/WorkStatus'
+        search_radius:
+          type:
+          - integer
+          - 'null'
+          default: 160934
+          maximum: 160934
+          description: Maximum distance (haversine) in meters of workers from order destination, maximum of 160934 meters (100 miles).
+    SearchFilter1:
+      type: object
+      properties:
+        search_radius:
+          type:
+          - integer
+          - 'null'
+          maximum: 160934
+          description: Maximum distance (haversine) in meters of drivers from order destination, maximum of 160934 meters (100 miles).
+        include_on_trip:
+          type:
+          - boolean
+          - 'null'
+          description: True when on trip drivers are also needed as part of response (default value is false).
+        driver_profile:
+          type:
+          - object
+          - 'null'
+          description: Used to specify a filter that is applied on the drivers returned in a nearby search result; For example, this profile filter can represent attributes describing your gig workers, such as a team assignment, gig category, etc.
+          additionalProperties: {}
+        driver_list:
+          type:
+          - array
+          - 'null'
+          minItems: 1
+          description: Array of device ids whose estimates to order destination will be calculated. Only for search type 'eta', if present other filters are not allowed.
+          items:
+            type: string
+            format: uuid
+    PointLocationGeometry:
+      type: object
+      properties:
+        type:
+          enum:
+          - Point
+          description: Point Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude].
+          items:
+            type: number
+      required:
+      - coordinates
+      - type
+    NearbyOngoingTrip:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          description: Trip id which is still ongoing (only present if device has any ongoing trip and request has include_on_trip as true).
+        destination:
+          type: object
+          description: Destination geometry for Ongoing trip (only present if device has any ongoing trip and request has include_on_trip as true).
+          additionalProperties: {}
+        remaining_distance:
+          type: integer
+          description: Distance (in meters) device needs to travel to reach trip destination (only present if device has any ongoing trip and request has include_on_trip as true).
+        remaining_duration:
+          type: integer
+          description: Time (in seconds) needed for device to travel to reach trip destination (only present if device has any ongoing trip and request has include_on_trip as true).
+      required:
+      - destination
+      - remaining_distance
+      - remaining_duration
+      - trip_id
+    LocationGeometryResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as list of [longitude, latitude].
+          items: {}
+      required:
+      - coordinates
+      - type
+    DriverDateSchedule:
+      type: object
+      properties:
+        start_time:
+          type: string
+          description: Start time represented by HH:mm of the worker's day schedule
+        end_time:
+          type: string
+          description: End time represented by HH:mm of the worker's day schedule
+        date:
+          type: string
+          description: Date on which the worker is available for work
+        ops_group_handle:
+          type:
+          - string
+          - 'null'
+          description: Unique identifier for an Ops Group
+        priority:
+          type:
+          - integer
+          - 'null'
+          description: Priority of schedule of a worker
+      required:
+      - date
+      - end_time
+      - start_time
+    WorkStatus:
+      type: object
+      properties:
+        tracking:
+          type:
+          - boolean
+          - 'null'
+          description: Indicates if the worker is currently being tracked.
+        available:
+          type:
+          - boolean
+          - 'null'
+          description: Indicates if the worker is available for new tasks.
   securitySchemes:
     BasicAuth:
       type: http
