@@ -489,130 +489,60 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    GeotagStats:
+    GeotagOrder:
       type: object
       properties:
-        mean:
-          type:
-          - number
-          - 'null'
-          description: Average value for the metric
-        min:
-          type:
-          - number
-          - 'null'
-          description: Minimum value for the metric
-        max:
-          type:
-          - number
-          - 'null'
-          description: Maximum value for the metric
-        stdev:
-          type:
-          - number
-          - 'null'
-          description: Standard deviation for the metric
-        mean_by_driver:
-          type:
-          - number
-          - 'null'
-          description: Average value per worker for the metric
-        sum:
-          type: number
-          description: Total value of the metric
-      required:
-      - sum
-    HTTPError:
-      properties:
-        detail:
-          type: object
-        message:
+        order_handle:
           type: string
-      type: object
-    GeotagOrderAggregate:
-      type: object
-      properties:
-        count:
-          type: integer
-          description: Number of orders generated in the given time range
+          description: String representing the order
+        last_geotag_recorded_at:
+          type: string
+          description: ISO 8601 date when the last geotag for the order was created
         distance:
-          description: Stats related to the orders distance
-          allOf:
-          - $ref: '#/components/schemas/GeotagStats'
+          type: integer
+          description: Distance travelled for the order
         duration:
-          description: Stats related to the orders duration in second
-          allOf:
-          - $ref: '#/components/schemas/GeotagStats'
-        active_duration:
-          description: Stats related to the orders active duration in second
-          allOf:
-          - $ref: '#/components/schemas/GeotagStats'
-        outage_duration:
-          description: Stats related to the orders outage duration in second
-          allOf:
-          - $ref: '#/components/schemas/GeotagStats'
+          type: integer
+          description: Duration to be tracked for the order
+        driver_handle:
+          type: string
+          description: String representing the handle for the driver
+          deprecated: true
+        worker_handle:
+          type: string
+          description: String representing the handle for the worker
+        driver_name:
+          type: string
+          description: String representing the name of the driver
+          deprecated: true
+        worker_name:
+          type: string
+          description: String representing the name of the driver
+        device_id:
+          type: string
+          format: uuid
+          description: String representing the ID of the device
         tracking_rate:
           type: number
-          description: Tracking rate of the driver during the lifespan of the orders
-        deviation:
-          description: Stats related to the geotag deviation
-          allOf:
-          - $ref: '#/components/schemas/GeotagStats'
-        geotags:
-          description: Aggregate information of geotags
-          allOf:
-          - $ref: '#/components/schemas/GeotagAggregate'
-        drivers:
-          description: Aggregate information of drivers
-          deprecated: true
-          allOf:
-          - $ref: '#/components/schemas/DriversAggregate'
-        workers:
-          description: Aggregate information of workers
-          allOf:
-          - $ref: '#/components/schemas/DriversAggregate'
-        outage_summary:
-          type:
-          - array
-          - 'null'
-          description: List of outages experienced during the specified time range.
-          items:
-            $ref: '#/components/schemas/OrderOutageSummary'
-      required:
-      - count
-    LocationWithoutRadius:
-      type: object
-      properties:
-        address:
-          type:
-          - string
-          - 'null'
-          description: Address for the location
-        geometry:
-          description: Location geometry
-          anyOf:
-          - $ref: '#/components/schemas/LocationGeometry'
-    DriversAggregate:
-      type: object
-      properties:
-        count:
-          type: integer
-          description: Total number of drivers
-    ValidationError:
-      properties:
-        detail:
-          type: object
-          properties:
-            <location>:
-              type: object
-              properties:
-                <field_name>:
-                  type: array
-                  items:
-                    type: string
-        message:
+          description: Driver tracking rate during the lifespan of the order
+        ops_group_handle:
           type: string
-      type: object
+          description: String representing the ops group handle
+        system_generated_order_handle:
+          type: boolean
+          description: Boolean representing whether the handle was automatically generated by HT system or sent along with geotag data
+        geotags:
+          type: array
+          description: List of geotags associated with order
+          items:
+            $ref: '#/components/schemas/Geotag'
+      required:
+      - device_id
+      - distance
+      - duration
+      - last_geotag_recorded_at
+      - order_handle
+      - system_generated_order_handle
     DriveSummary:
       type: object
       properties:
@@ -629,41 +559,6 @@ components:
       - count
       - distance
       - duration
-    GetGeotagsResponse:
-      type: object
-      properties:
-        orders:
-          type:
-          - array
-          - 'null'
-          description: Array of Orders fulfilled in the given time range
-          items:
-            $ref: '#/components/schemas/GeotagOrder'
-        pagination_token:
-          type:
-          - string
-          - 'null'
-          description: Identifier used to fetch the next page of data
-        aggregate:
-          description: Combined aggregate metrics for geotags and orders in the given time range
-          anyOf:
-          - $ref: '#/components/schemas/GeotagOrderAggregate'
-    LocationGeometry:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - Point
-          description: Geometry type
-        coordinates:
-          type: array
-          description: Location coordinates represented as [longitude, latitude]
-          items:
-            type: number
-      required:
-      - coordinates
-      - type
     GetGeotagTimelineResponse:
       type: object
       properties:
@@ -759,155 +654,6 @@ components:
       - geotag_id
       - location
       - recorded_at
-    GeotagOrder:
-      type: object
-      properties:
-        order_handle:
-          type: string
-          description: String representing the order
-        last_geotag_recorded_at:
-          type: string
-          description: ISO 8601 date when the last geotag for the order was created
-        distance:
-          type: integer
-          description: Distance travelled for the order
-        duration:
-          type: integer
-          description: Duration to be tracked for the order
-        driver_handle:
-          type: string
-          description: String representing the handle for the driver
-          deprecated: true
-        worker_handle:
-          type: string
-          description: String representing the handle for the worker
-        driver_name:
-          type: string
-          description: String representing the name of the driver
-          deprecated: true
-        worker_name:
-          type: string
-          description: String representing the name of the driver
-        device_id:
-          type: string
-          format: uuid
-          description: String representing the ID of the device
-        tracking_rate:
-          type: number
-          description: Driver tracking rate during the lifespan of the order
-        ops_group_handle:
-          type: string
-          description: String representing the ops group handle
-        system_generated_order_handle:
-          type: boolean
-          description: Boolean representing whether the handle was automatically generated by HT system or sent along with geotag data
-        geotags:
-          type: array
-          description: List of geotags associated with order
-          items:
-            $ref: '#/components/schemas/Geotag'
-      required:
-      - device_id
-      - distance
-      - duration
-      - last_geotag_recorded_at
-      - order_handle
-      - system_generated_order_handle
-    SignatureAttachment1:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - signature
-          description: Type of attachment
-        url:
-          type: string
-          description: Signature image link
-        attachment_id:
-          type:
-          - string
-          - 'null'
-      required:
-      - type
-      - url
-    GeotagTrackingSummary:
-      type: object
-      properties:
-        stop:
-          description: Tracking summary of stops during the geotag lifespan.
-          anyOf:
-          - $ref: '#/components/schemas/ActivitySummary'
-        walk:
-          description: Tracking summary of walks during the geotag lifespan.
-          anyOf:
-          - $ref: '#/components/schemas/ActivitySummary'
-        drive:
-          description: Tracking summary of drives during the geotag lifespan.
-          anyOf:
-          - $ref: '#/components/schemas/DriveSummary'
-    GeotagAggregate:
-      type: object
-      properties:
-        count:
-          type: integer
-          description: Number of geotags generated in the given time range
-        count_mean:
-          type: number
-          description: Mean number of geotags in an order in the given time range
-    ImageAttachment1:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - image
-          description: Type of attachment
-        url:
-          type: string
-          description: Image link
-        caption:
-          type:
-          - string
-          - 'null'
-          description: Caption for the image
-        attachment_id:
-          type:
-          - string
-          - 'null'
-      required:
-      - type
-      - url
-    Region:
-      type: object
-      properties:
-        country:
-          type: string
-          description: Country
-        city:
-          type:
-          - string
-          - 'null'
-          description: City
-        state:
-          type:
-          - string
-          - 'null'
-          description: State
-      required:
-      - country
-    ActivitySummary:
-      type: object
-      properties:
-        duration:
-          type: integer
-          description: Time duration in seconds worker spent during the activity
-        count:
-          type: integer
-          description: Number of times the worker was observed in the activity
-      required:
-      - count
-      - duration
     OrderOutageSummary:
       type: object
       properties:
@@ -959,6 +705,89 @@ components:
           - 'null'
       required:
       - data
+      - type
+    GetGeotagsResponse:
+      type: object
+      properties:
+        orders:
+          type:
+          - array
+          - 'null'
+          description: Array of Orders fulfilled in the given time range
+          items:
+            $ref: '#/components/schemas/GeotagOrder'
+        pagination_token:
+          type:
+          - string
+          - 'null'
+          description: Identifier used to fetch the next page of data
+        aggregate:
+          description: Combined aggregate metrics for geotags and orders in the given time range
+          anyOf:
+          - $ref: '#/components/schemas/GeotagOrderAggregate'
+    ActivitySummary:
+      type: object
+      properties:
+        duration:
+          type: integer
+          description: Time duration in seconds worker spent during the activity
+        count:
+          type: integer
+          description: Number of times the worker was observed in the activity
+      required:
+      - count
+      - duration
+    Region:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country
+        city:
+          type:
+          - string
+          - 'null'
+          description: City
+        state:
+          type:
+          - string
+          - 'null'
+          description: State
+      required:
+      - country
+    SignatureAttachment1:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - signature
+          description: Type of attachment
+        url:
+          type: string
+          description: Signature image link
+        attachment_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - type
+      - url
+    LocationGeometry:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Point
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as [longitude, latitude]
+          items:
+            type: number
+      required:
+      - coordinates
       - type
     Geotag:
       type: object
@@ -1055,6 +884,177 @@ components:
       - geotag_id
       - location
       - recorded_at
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
+    GeotagStats:
+      type: object
+      properties:
+        mean:
+          type:
+          - number
+          - 'null'
+          description: Average value for the metric
+        min:
+          type:
+          - number
+          - 'null'
+          description: Minimum value for the metric
+        max:
+          type:
+          - number
+          - 'null'
+          description: Maximum value for the metric
+        stdev:
+          type:
+          - number
+          - 'null'
+          description: Standard deviation for the metric
+        mean_by_driver:
+          type:
+          - number
+          - 'null'
+          description: Average value per worker for the metric
+        sum:
+          type: number
+          description: Total value of the metric
+      required:
+      - sum
+    GeotagOrderAggregate:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of orders generated in the given time range
+        distance:
+          description: Stats related to the orders distance
+          allOf:
+          - $ref: '#/components/schemas/GeotagStats'
+        duration:
+          description: Stats related to the orders duration in second
+          allOf:
+          - $ref: '#/components/schemas/GeotagStats'
+        active_duration:
+          description: Stats related to the orders active duration in second
+          allOf:
+          - $ref: '#/components/schemas/GeotagStats'
+        outage_duration:
+          description: Stats related to the orders outage duration in second
+          allOf:
+          - $ref: '#/components/schemas/GeotagStats'
+        tracking_rate:
+          type: number
+          description: Tracking rate of the driver during the lifespan of the orders
+        deviation:
+          description: Stats related to the geotag deviation
+          allOf:
+          - $ref: '#/components/schemas/GeotagStats'
+        geotags:
+          description: Aggregate information of geotags
+          allOf:
+          - $ref: '#/components/schemas/GeotagAggregate'
+        drivers:
+          description: Aggregate information of drivers
+          deprecated: true
+          allOf:
+          - $ref: '#/components/schemas/DriversAggregate'
+        workers:
+          description: Aggregate information of workers
+          allOf:
+          - $ref: '#/components/schemas/DriversAggregate'
+        outage_summary:
+          type:
+          - array
+          - 'null'
+          description: List of outages experienced during the specified time range.
+          items:
+            $ref: '#/components/schemas/OrderOutageSummary'
+      required:
+      - count
+    DriversAggregate:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total number of drivers
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
+    LocationWithoutRadius:
+      type: object
+      properties:
+        address:
+          type:
+          - string
+          - 'null'
+          description: Address for the location
+        geometry:
+          description: Location geometry
+          anyOf:
+          - $ref: '#/components/schemas/LocationGeometry'
+    GeotagTrackingSummary:
+      type: object
+      properties:
+        stop:
+          description: Tracking summary of stops during the geotag lifespan.
+          anyOf:
+          - $ref: '#/components/schemas/ActivitySummary'
+        walk:
+          description: Tracking summary of walks during the geotag lifespan.
+          anyOf:
+          - $ref: '#/components/schemas/ActivitySummary'
+        drive:
+          description: Tracking summary of drives during the geotag lifespan.
+          anyOf:
+          - $ref: '#/components/schemas/DriveSummary'
+    GeotagAggregate:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of geotags generated in the given time range
+        count_mean:
+          type: number
+          description: Mean number of geotags in an order in the given time range
+    ImageAttachment1:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - image
+          description: Type of attachment
+        url:
+          type: string
+          description: Image link
+        caption:
+          type:
+          - string
+          - 'null'
+          description: Caption for the image
+        attachment_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - type
+      - url
   securitySchemes:
     BasicAuth:
       type: http

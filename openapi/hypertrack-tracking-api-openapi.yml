@@ -55,6 +55,65 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    TimeSeriesLocation:
+      type: object
+      properties:
+        lat:
+          type: number
+          description: Latitude of the location
+        lon:
+          type: number
+          description: Longitude of the driver
+        timestamp:
+          type: string
+          description: Time when location was recorded
+      required:
+      - lat
+      - lon
+      - timestamp
+    TrackingInferences:
+      type: object
+      properties:
+        destination_inferences:
+          $ref: '#/components/schemas/TrackingDestinationInferences'
+        order_inferences:
+          $ref: '#/components/schemas/TrackingOrderInferences'
+      required:
+      - destination_inferences
+      - order_inferences
+    LocationScore:
+      type: object
+      properties:
+        location:
+          description: Location of inference
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometryResponse'
+        score:
+          type: number
+          default: 1
+          description: The score
+        timestamp:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Time when this score was last updated
+      required:
+      - location
+    TrackingOrderInferences:
+      type: object
+      properties:
+        parking:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationGeometryResponse'
+        checkin:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationGeometryResponse'
+      required:
+      - checkin
+      - parking
     LocationResponse:
       type: object
       properties:
@@ -89,295 +148,6 @@ components:
           description: Speed in meters per second at this location
       required:
       - geometry
-    TripSummary:
-      type: object
-      properties:
-        distance:
-          type: integer
-          description: Distance travelled by driver
-        duration:
-          type: integer
-          description: Time spent by the driver on order
-        locations:
-          type: array
-          description: Locations on route taken by the driver
-          items:
-            $ref: '#/components/schemas/TimeSeriesLocation'
-      required:
-      - distance
-      - duration
-      - locations
-    TrackingDriver:
-      type: object
-      properties:
-        driver_handle:
-          type: string
-          description: Driver handle
-        device_id:
-          type: string
-          description: Device id of the device of driver
-        device_model:
-          type: string
-          description: Model of the device of driver
-        name:
-          type: string
-          description: Name of the driver
-        location:
-          description: Current location of the driver
-          allOf:
-          - $ref: '#/components/schemas/DriverLocation1'
-        status:
-          type: string
-          description: Status of the driver
-      required:
-      - device_id
-      - device_model
-      - driver_handle
-      - location
-      - name
-      - status
-    TimeSeriesLocation:
-      type: object
-      properties:
-        lat:
-          type: number
-          description: Latitude of the location
-        lon:
-          type: number
-          description: Longitude of the driver
-        timestamp:
-          type: string
-          description: Time when location was recorded
-      required:
-      - lat
-      - lon
-      - timestamp
-    TrackingInferences:
-      type: object
-      properties:
-        destination_inferences:
-          $ref: '#/components/schemas/TrackingDestinationInferences'
-        order_inferences:
-          $ref: '#/components/schemas/TrackingOrderInferences'
-      required:
-      - destination_inferences
-      - order_inferences
-    DriverLocation1:
-      type: object
-      properties:
-        geometry:
-          description: Current location of the driver
-          allOf:
-          - $ref: '#/components/schemas/LocationGeometryResponse'
-        bearing:
-          type: number
-          description: Bearing of the driver
-        accuracy:
-          type: number
-          description: Accuracy of location the driver
-        speed:
-          type: number
-          description: Speed of the driver
-        recorded_at:
-          type: string
-          description: Time when the location of the driver was recorded
-      required:
-      - accuracy
-      - bearing
-      - geometry
-      - recorded_at
-      - speed
-    ValidationError:
-      properties:
-        detail:
-          type: object
-          properties:
-            <location>:
-              type: object
-              properties:
-                <field_name>:
-                  type: array
-                  items:
-                    type: string
-        message:
-          type: string
-      type: object
-    PolygonLocationGeometryResponse:
-      type: object
-      properties:
-        type:
-          enum:
-          - Polygon
-          description: Polygon Geometry type
-        coordinates:
-          type: array
-          description: Location coordinates represented as list of list of [longitude, latitude].
-          items:
-            type: array
-            items:
-              type: array
-              items:
-                type: number
-      required:
-      - coordinates
-      - type
-    TrackingDestinationInferences:
-      type: object
-      properties:
-        locations:
-          type: array
-          items:
-            $ref: '#/components/schemas/InferenceLocation'
-        service_area:
-          type: array
-          items:
-            $ref: '#/components/schemas/LocationGeometryResponse'
-        geofences:
-          type: array
-          items:
-            $ref: '#/components/schemas/InferredGeofence'
-      required:
-      - geofences
-      - locations
-      - service_area
-    TrackingResponse:
-      type: object
-      properties:
-        order:
-          description: Details of order associated with tracking id
-          allOf:
-          - $ref: '#/components/schemas/TrackingOrder'
-        driver:
-          description: Details of driver working on order
-          allOf:
-          - $ref: '#/components/schemas/TrackingDriver'
-        inferences:
-          description: inferences related to this tracking id
-          allOf:
-          - $ref: '#/components/schemas/TrackingInferences'
-      required:
-      - driver
-      - inferences
-      - order
-    HTTPError:
-      properties:
-        detail:
-          type: object
-        message:
-          type: string
-      type: object
-    EstimateResponse:
-      type: object
-      properties:
-        start_by:
-          type: string
-          description: Time when driver should start the order
-        distance:
-          type: integer
-          description: Estimated distance to be travelled by driver
-        duration:
-          type: integer
-          description: Estimated time needed to reach destination
-        polyline:
-          description: Route to be taken by driver
-          allOf:
-          - $ref: '#/components/schemas/LocationGeometryResponse'
-        start_location:
-          description: Start location of the route
-          allOf:
-          - $ref: '#/components/schemas/LocationGeometryResponse'
-        end_location:
-          description: End Location of the route
-          allOf:
-          - $ref: '#/components/schemas/LocationGeometryResponse'
-        arrive_at:
-          type: string
-          description: Time when driver should reach the destination
-      required:
-      - arrive_at
-      - distance
-      - duration
-      - end_location
-      - polyline
-      - start_by
-      - start_location
-    InferenceLocation:
-      type: object
-      properties:
-        geometry:
-          $ref: '#/components/schemas/LocationGeometryResponse'
-        inferences:
-          type: array
-          items:
-            $ref: '#/components/schemas/LocationScore'
-      required:
-      - geometry
-      - inferences
-    InferredGeofence:
-      type: object
-      properties:
-        geometry:
-          description: Location
-          allOf:
-          - $ref: '#/components/schemas/PolygonLocationGeometryResponse'
-        source:
-          enum:
-          - customer_provided
-          - ht_generated
-          description: Source which created this location
-        inclusivity:
-          type: string
-          description: More inclusivity means more loosely defined service area
-        skew:
-          type: number
-          description: Skew in inferred geofence, values can be between 0 and 1. 0 mean no skew, i.e. perfect overlap and 1 means no overlap
-        area_ratio:
-          type:
-          - number
-          - 'null'
-          description: Ratio of inferred geometry area to current geofence area (inferred/current)
-        centroid_shift:
-          type:
-          - number
-          - 'null'
-          description: Distance in meters between the centroid of current geofence and inferred geometry
-      required:
-      - geometry
-      - inclusivity
-      - skew
-      - source
-    LocationScore:
-      type: object
-      properties:
-        location:
-          description: Location of inference
-          allOf:
-          - $ref: '#/components/schemas/LocationGeometryResponse'
-        score:
-          type: number
-          default: 1
-          description: The score
-        timestamp:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: Time when this score was last updated
-      required:
-      - location
-    LocationGeometryResponse:
-      type: object
-      properties:
-        type:
-          type: string
-          description: Geometry type
-        coordinates:
-          type: array
-          description: Location coordinates represented as list of [longitude, latitude].
-          items: {}
-      required:
-      - coordinates
-      - type
     TrackingOrder:
       type: object
       properties:
@@ -471,20 +241,250 @@ components:
       required:
       - order_handle
       - route_handle
-    TrackingOrderInferences:
+    ValidationError:
+      properties:
+        detail:
+          type: object
+          properties:
+            <location>:
+              type: object
+              properties:
+                <field_name>:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+      type: object
+    InferenceLocation:
       type: object
       properties:
-        parking:
+        geometry:
+          $ref: '#/components/schemas/LocationGeometryResponse'
+        inferences:
           type: array
           items:
-            $ref: '#/components/schemas/LocationGeometryResponse'
-        checkin:
-          type: array
-          items:
-            $ref: '#/components/schemas/LocationGeometryResponse'
+            $ref: '#/components/schemas/LocationScore'
       required:
-      - checkin
-      - parking
+      - geometry
+      - inferences
+    TrackingResponse:
+      type: object
+      properties:
+        order:
+          description: Details of order associated with tracking id
+          allOf:
+          - $ref: '#/components/schemas/TrackingOrder'
+        driver:
+          description: Details of driver working on order
+          allOf:
+          - $ref: '#/components/schemas/TrackingDriver'
+        inferences:
+          description: inferences related to this tracking id
+          allOf:
+          - $ref: '#/components/schemas/TrackingInferences'
+      required:
+      - driver
+      - inferences
+      - order
+    DriverLocation1:
+      type: object
+      properties:
+        geometry:
+          description: Current location of the driver
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometryResponse'
+        bearing:
+          type: number
+          description: Bearing of the driver
+        accuracy:
+          type: number
+          description: Accuracy of location the driver
+        speed:
+          type: number
+          description: Speed of the driver
+        recorded_at:
+          type: string
+          description: Time when the location of the driver was recorded
+      required:
+      - accuracy
+      - bearing
+      - geometry
+      - recorded_at
+      - speed
+    LocationGeometryResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as list of [longitude, latitude].
+          items: {}
+      required:
+      - coordinates
+      - type
+    InferredGeofence:
+      type: object
+      properties:
+        geometry:
+          description: Location
+          allOf:
+          - $ref: '#/components/schemas/PolygonLocationGeometryResponse'
+        source:
+          enum:
+          - customer_provided
+          - ht_generated
+          description: Source which created this location
+        inclusivity:
+          type: string
+          description: More inclusivity means more loosely defined service area
+        skew:
+          type: number
+          description: Skew in inferred geofence, values can be between 0 and 1. 0 mean no skew, i.e. perfect overlap and 1 means no overlap
+        area_ratio:
+          type:
+          - number
+          - 'null'
+          description: Ratio of inferred geometry area to current geofence area (inferred/current)
+        centroid_shift:
+          type:
+          - number
+          - 'null'
+          description: Distance in meters between the centroid of current geofence and inferred geometry
+      required:
+      - geometry
+      - inclusivity
+      - skew
+      - source
+    TrackingDestinationInferences:
+      type: object
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/InferenceLocation'
+        service_area:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationGeometryResponse'
+        geofences:
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredGeofence'
+      required:
+      - geofences
+      - locations
+      - service_area
+    PolygonLocationGeometryResponse:
+      type: object
+      properties:
+        type:
+          enum:
+          - Polygon
+          description: Polygon Geometry type
+        coordinates:
+          type: array
+          description: Location coordinates represented as list of list of [longitude, latitude].
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+      required:
+      - coordinates
+      - type
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
+    EstimateResponse:
+      type: object
+      properties:
+        start_by:
+          type: string
+          description: Time when driver should start the order
+        distance:
+          type: integer
+          description: Estimated distance to be travelled by driver
+        duration:
+          type: integer
+          description: Estimated time needed to reach destination
+        polyline:
+          description: Route to be taken by driver
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometryResponse'
+        start_location:
+          description: Start location of the route
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometryResponse'
+        end_location:
+          description: End Location of the route
+          allOf:
+          - $ref: '#/components/schemas/LocationGeometryResponse'
+        arrive_at:
+          type: string
+          description: Time when driver should reach the destination
+      required:
+      - arrive_at
+      - distance
+      - duration
+      - end_location
+      - polyline
+      - start_by
+      - start_location
+    TrackingDriver:
+      type: object
+      properties:
+        driver_handle:
+          type: string
+          description: Driver handle
+        device_id:
+          type: string
+          description: Device id of the device of driver
+        device_model:
+          type: string
+          description: Model of the device of driver
+        name:
+          type: string
+          description: Name of the driver
+        location:
+          description: Current location of the driver
+          allOf:
+          - $ref: '#/components/schemas/DriverLocation1'
+        status:
+          type: string
+          description: Status of the driver
+      required:
+      - device_id
+      - device_model
+      - driver_handle
+      - location
+      - name
+      - status
+    TripSummary:
+      type: object
+      properties:
+        distance:
+          type: integer
+          description: Distance travelled by driver
+        duration:
+          type: integer
+          description: Time spent by the driver on order
+        locations:
+          type: array
+          description: Locations on route taken by the driver
+          items:
+            $ref: '#/components/schemas/TimeSeriesLocation'
+      required:
+      - distance
+      - duration
+      - locations
   securitySchemes:
     BasicAuth:
       type: http
