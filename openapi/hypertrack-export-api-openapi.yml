@@ -86,22 +86,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    OrderExportResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: Unique identifier for the export job
-        status:
-          type: string
-          description: 'Current status of the export job: pending, processing, completed, failed'
-        message:
-          type: string
-          description: Human-readable message about the job
-      required:
-      - job_id
-      - message
-      - status
     Error:
       type: object
       properties:
@@ -129,6 +113,29 @@ components:
         message:
           type: string
       type: object
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
+    OrderExportResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: Unique identifier for the export job
+        status:
+          type: string
+          description: 'Current status of the export job: pending, processing, completed, failed'
+        message:
+          type: string
+          description: Human-readable message about the job
+      required:
+      - job_id
+      - message
+      - status
     OrderExportRequest:
       type: object
       properties:
@@ -428,13 +435,6 @@ components:
           description: Optional list of email addresses to send the export download link. Falls back to the account email when omitted.
           items:
             type: string
-    HTTPError:
-      properties:
-        detail:
-          type: object
-        message:
-          type: string
-      type: object
     OrderExportStatusResponse:
       type: object
       properties:
