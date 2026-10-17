@@ -86,6 +86,13 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    HTTPError:
+      properties:
+        detail:
+          type: object
+        message:
+          type: string
+      type: object
     Error:
       type: object
       properties:
@@ -154,13 +161,6 @@ components:
       required:
       - job_id
       - status
-    HTTPError:
-      properties:
-        detail:
-          type: object
-        message:
-          type: string
-      type: object
     WorkerExportRequest:
       type: object
       properties:
